@@ -77,7 +77,7 @@ body { position: fixed; inset: 0; width: 100%; height: 100%; } /* ページ自�
   <label class="file sub" id="sfRow" hidden>SoundFontを選択<input id="sf" type="file" accept=".sf2,.sf3"></label>
   <div class="opts">
     <label>難易度
-      <select id="diff"><option value="easy">EASY</option><option value="normal" selected>NORMAL</option><option value="hard">HARD</option><option value="lunatic">LUNATIC</option></select>
+      <select id="diff"><option value="easy">EASY</option><option value="normal" selected>NORMAL</option><option value="hard">HARD</option><option value="lunatic">LUNATIC、狂気的ー</option></select>
     </label>
     <label>レーン数
       <select id="lanes"><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select>
@@ -88,17 +88,17 @@ body { position: fixed; inset: 0; width: 100%; height: 100%; } /* ページ自�
     <label>曲の音量 <b id="volV"></b>
       <input id="vol" type="range" min="0" max="100" step="5">
     </label>
-    <label>タップ音（曲とは別の音量） <b id="sfxV"></b>
+    <label>タップ音<b id="sfxV"></b>
       <input id="sfx" type="range" min="0" max="100" step="5">
     </label>
-    <label class="chk"><input id="lite" type="checkbox"> 軽量モード（古い端末向け：小さい音源・エフェクト削減）</label>
-    <label class="chk"><input id="auto" type="checkbox"> オートプレイ（全ノーツ PERFECT）</label>
+    <label class="chk"><input id="lite" type="checkbox"> 軽量モード</label>
+    <label class="chk"><input id="auto" type="checkbox"> オートプレイ</label>
     <label>判定オフセット <b id="offsetV"></b>
       <input id="offset" type="range" min="-300" max="300" step="10">
     </label>
   </div>
   <button id="start" disabled>開始</button>
-  <p id="status" class="status">音源を読み込み中…</p>
+  <p id="status" class="status">音源を読み込みしてるふり</p>
 </main>
 
 <section id="result" hidden>
@@ -111,8 +111,8 @@ body { position: fixed; inset: 0; width: 100%; height: 100%; } /* ページ自�
 <section id="pause" hidden>
   <p class="rscore">一時停止</p>
   <button id="resume">再開</button>
-  <button id="retry" class="sub">やり直し</button>
-  <button id="quit" class="sub">終了</button>
+  <button id="retry" class="sub">やり直しー</button>
+  <button id="quit" class="sub">シュウリョウ</button>
   <p id="pauseMsg" class="status"></p>
 </section>
 
