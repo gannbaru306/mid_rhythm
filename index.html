@@ -166,6 +166,28 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
 .npbox{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:16px;width:100%;max-width:460px;display:grid;gap:10px}
 .npbox label{display:grid;gap:4px;font-size:13px;color:var(--mute)}
 .npcode{font-size:30px;font-weight:800;letter-spacing:4px;text-align:center;padding:10px;border:1px dashed var(--tap);border-radius:10px;color:var(--tap)}
+.tin{padding:10px;background:#161a2e;color:var(--fg);border:1px solid var(--line);border-radius:8px;font-size:16px;width:100%;box-sizing:border-box}
+#netScreen{position:fixed;inset:0;z-index:52;background:var(--bg);display:flex;flex-direction:column;gap:10px;padding:max(12px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom));max-width:720px;margin:0 auto;overflow-y:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+#nsTop{display:flex;align-items:center;gap:10px}
+#nsTop b{flex:1;text-align:center;font-size:16px}
+#nsTop button{padding:8px 12px;font-size:14px}
+#nsBar{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#nsBar #nsQ{grid-column:1/-1}
+#nsBar select{font-size:14px;padding:8px}
+#nsSet label{display:grid;gap:4px;margin-top:8px;font-size:13px;color:var(--mute)}
+#netDetail{position:fixed;inset:0;z-index:58;background:rgba(5,6,12,.88);display:grid;place-items:center;padding:16px;overflow-y:auto}
+.ndbox{max-width:480px}
+.nlink{display:block;padding:12px;border:2px solid var(--tap);border-radius:10px;color:var(--tap);font-weight:700;text-align:center;text-decoration:none;word-break:break-all}
+#ndMidi{display:grid;gap:6px}
+#ndMidi small{color:var(--mute);font-size:12px;text-align:center}
+#ndRank,#rNetList{display:grid;gap:4px}
+#ndRank small{color:var(--mute);font-size:12px}
+.rkrow{display:grid;grid-template-columns:3em 1fr auto auto;gap:8px;align-items:center;padding:6px 8px;border-radius:8px;background:#161a2e;font-size:13px;color:var(--fg);text-align:left}
+.rkrow.me{outline:1px solid var(--tap)}
+.rkpos{color:var(--mute)}
+.rkname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rkscore{font-weight:700;font-variant-numeric:tabular-nums}
+.rkgrade{font-size:11px;color:var(--mute);min-width:2.5em;text-align:right}
 .rrank{font-size:72px;font-weight:900;text-align:center;line-height:1;margin:2px 0 6px;letter-spacing:2px}
 .prrate{margin-bottom:8px;font-size:13px;color:var(--mute)}
 .prrate select{width:auto;padding:5px 8px;margin-left:6px}
@@ -227,15 +249,7 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
     <p class="status" id="pvCur" style="margin-top:6px"></p>
     <button id="pvOpen" class="sub" type="button">▶ プレビューを開く（再生）</button>
   </details>
-  <details id="netBox"><summary>オンライン譜面 <span id="netSum"></span></summary>
-    <p class="status" style="text-align:left">エディタで作った譜面を共有したり、他の人の譜面を使えます。送受信されるのは譜面データだけで、MIDI本体は含まれません。同じ曲のMIDIなら、ファイル名が違っても見つかります。</p>
-    <label>共有サーバーのURL<input id="netUrl" type="url" placeholder="https://xxxx.workers.dev" autocomplete="off"></label>
-    <div class="netrow"><button id="netSave" class="sub" type="button">URLを保存</button><button id="netTest" class="sub" type="button">接続テスト</button></div>
-    <button id="netFind" class="sub" type="button" style="margin-top:8px">この曲の共有譜面を探す</button>
-    <div id="netList"></div>
-    <div class="netrow" style="margin-top:8px"><input id="netCode" placeholder="共有コード" autocomplete="off"><button id="netGet" class="sub" type="button">コードで開く</button></div>
-    <div id="netMineBox" hidden><b style="font-size:14px">公開した譜面</b><div id="netMine"></div></div>
-  </details>
+  <button id="netOpen" class="sub" type="button">オンライン譜面（みんなの譜面・ランキング） <span id="netSum"></span></button>
   <details id="dispBox"><summary>表示設定（ノーツスキン・判定ライン）</summary>
     <div class="opts" style="margin-top:10px">
       <label>ノーツの色 <select id="skColor"><option value="default">標準</option><option value="neon">ネオン</option><option value="pastel">パステル</option><option value="cb">色覚配慮</option><option value="mono">モノクロ</option></select></label>
@@ -259,6 +273,7 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
   <div id="rRank" class="rrank" hidden></div>
   <p id="rDetail" class="rdetail"></p>
   <p id="rExtra" class="rdetail"></p>
+  <div id="rNetBox" hidden><p id="rNetMsg" class="rdetail" style="margin-bottom:6px"></p><div id="rNetList"></div><button id="rNetName" class="sub" type="button" style="padding:8px 12px;font-size:13px;margin-top:6px">ランキング用の名前を変更</button></div>
   <div id="rHistBox" hidden><div id="rHist" class="hist"></div><div class="histl"><span>FAST −150ms</span><span>0</span><span>+150ms SLOW</span></div></div>
   <p id="rAna" class="rdetail"></p>
   <div id="rPracBox" hidden><p class="rdetail" style="margin-bottom:6px">■ 区間練習（くり返し）</p><div class="prrate">速度 <select id="rPracRate"><option value="0.5">×0.5</option><option value="0.7" selected>×0.7</option><option value="0.85">×0.85</option><option value="1">×1.0</option></select></div><div id="rPracList"></div></div>
@@ -276,17 +291,46 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
 
 <button id="pbtn" hidden aria-label="一時停止" title="一時停止"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button>
 <button id="fs" aria-label="全画面" title="全画面"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+<section id="netScreen" hidden>
+  <div id="nsTop"><button id="nsBack" class="sub" type="button">← 戻る</button><b>オンライン譜面</b><button id="nsRefresh" class="sub" type="button">更新</button></div>
+  <p class="status" style="text-align:left">みんなが公開した譜面の一覧です。「プレイ」を押すだけでその譜面で遊べます（自分の編集済み譜面は上書きされません）。同じ譜面でのハイスコアランキングもあります。送受信されるのは譜面データだけで、MIDI本体は含まれません。</p>
+  <div id="nsBar">
+    <input id="nsQ" class="tin" type="search" placeholder="曲名・譜面名・作者で検索" maxlength="40" autocomplete="off">
+    <select id="nsSort"><option value="new">新着順</option><option value="popular">人気順（♥）</option><option value="plays">プレイ数順</option><option value="updated">更新順</option><option value="title">曲名順</option></select>
+    <select id="nsLanes"><option value="">レーン: すべて</option><option value="3">3レーン</option><option value="4">4レーン</option><option value="5">5レーン</option><option value="6">6レーン</option><option value="7">7レーン</option><option value="8">8レーン</option></select>
+    <select id="nsDiff"><option value="">難易度: すべて</option><option value="easy">EASY</option><option value="normal">NORMAL</option><option value="hard">HARD</option><option value="lunatic">LUNATIC</option><option value="custom">CUSTOM</option></select>
+  </div>
+  <p id="nsStat" class="status" style="text-align:left"></p>
+  <div id="nsList"></div>
+  <button id="nsMore" class="sub" type="button" hidden>もっと見る</button>
+  <details id="nsSet"><summary>接続・ランキング設定・公開した譜面</summary>
+    <label>共有サーバーのURL<input id="netUrl" class="tin" type="url" placeholder="https://xxxx.workers.dev" autocomplete="off"></label>
+    <div class="netrow"><button id="netSave" class="sub" type="button">URLを保存</button><button id="netTest" class="sub" type="button">接続テスト</button></div>
+    <label>ランキングに表示する名前（空欄で匿名）<input id="nsName" class="tin" maxlength="24" autocomplete="off"></label>
+    <div id="netMineBox" hidden style="margin-top:10px"><b style="font-size:14px">公開した譜面</b><div id="netMine"></div></div>
+  </details>
+</section>
+<section id="netDetail" hidden><div class="npbox ndbox">
+  <h3 id="ndTitle" style="margin:0"></h3>
+  <p id="ndMeta" class="status" style="text-align:left"></p>
+  <div class="netrow" style="margin-top:0"><button id="ndPlay" type="button" style="flex:1">▶ プレイ</button><button id="ndClose" class="sub" type="button">閉じる</button></div>
+  <div id="ndMidi"></div>
+  <label class="file sub" style="padding:10px;font-size:14px">MIDIファイルを選んで遊ぶ<input id="ndFile" type="file" accept=".mid,.midi,audio/midi,audio/x-midi"></label>
+  <b style="font-size:14px">ランキング</b>
+  <div id="ndRank"></div>
+</div></section>
 <section id="netPubDlg" hidden><div class="npbox">
   <h3 style="margin:0 0 8px">譜面をオンラインで共有</h3>
-  <p class="status" style="text-align:left">譜面データだけを公開します。MIDIファイルは送信されません。相手は同じ曲のMIDIを用意すると、この譜面で遊べます。</p>
+  <p class="status" style="text-align:left">譜面データだけを公開します。MIDIファイルは送信されません。相手は同じ曲のMIDIを用意すると、この譜面で遊べます。下の入手先URLを入れておくと、MIDIを持っていない人にリンクが表示されます。</p>
   <div id="npForm">
     <label>曲名（相手がMIDIを探す目印）<input id="npTitle" maxlength="60" autocomplete="off"></label>
     <label>譜面の名前<input id="npName" maxlength="40" placeholder="例: 初心者向け" autocomplete="off"></label>
     <label>作者名（空欄で匿名）<input id="npAuthor" maxlength="24" autocomplete="off"></label>
+    <label>MIDIの入手先URL（任意・公式の配布ページなど）<input id="npUrl" class="tin" type="url" maxlength="500" placeholder="https://" inputmode="url" autocomplete="off"></label>
     <label class="chk"><input id="npAgree" type="checkbox"> 上の名前と譜面が誰でも見られることに同意します</label>
     <div class="netrow"><button id="npGo" type="button">公開する</button><button id="npCancel" class="sub" type="button">キャンセル</button></div>
   </div>
-  <div id="npRes" hidden><p>公開しました！共有コード:</p><div id="npCode" class="npcode"></div><div class="netrow"><button id="npCopy" class="sub" type="button">コードをコピー</button><button id="npClose" type="button">閉じる</button></div></div>
+  <div id="npRes" hidden><p id="npMsg">公開しました！</p><div class="netrow"><button id="npClose" type="button">閉じる</button></div></div>
 </div></section>
 <section id="tut" hidden>
   <div id="tutTop"><span id="tutPg"></span><button id="tutSkip" class="sub" type="button">閉じる ✕</button></div>
@@ -519,10 +563,10 @@ if(!pe&&d.length>=10){var sum=0,fast=0,slow=0;d.forEach(function(x){sum+=x;if(x<
 var avg=sum/d.length*1e3,med=d[d.length>>1]*1e3,cur=+K("offset").value,nx=Math.max(-300,Math.min(300,Math.round((cur-med)/10)*10));
 L.push("タイミング: 平均 "+(avg>=0?"+":"")+avg.toFixed(0)+"ms（"+(avg<0?"FAST":"SLOW")+"寄り）  FAST "+fast+" / SLOW "+slow);
 if(nx!==cur){var b=K("rAdj");b.dataset.v=nx;b.textContent="判定オフセットを "+nx+"ms に調整";b.hidden=!1}}
-if(!quit&&!pe&&!_edPartial&&_mrPlayId){var pk=_mrPlayKey+(_edUsed?":ed":""),hs=_mrHS(),o=hs[_mrPlayId]=hs[_mrPlayId]||{},sc=Math.round(On()),old=o[pk],lb=K("rLabel").textContent;
+if(!quit&&!pe&&!_edPartial&&_mrPlayId){var pk=_mrPlayKey+(_netCur?":net:"+_netCur.id:(_edUsed?":ed":"")),hs=_mrHS(),o=hs[_mrPlayId]=hs[_mrPlayId]||{},sc=Math.round(On()),old=o[pk],lb=K("rLabel").textContent;
 if(!old||sc>old.s){o[pk]={s:sc,c:Pn,r:lb==="SCORE"?"":lb,k:rk,d:Date.now()};_mrJS("mr_hs",hs);L.unshift(old?"NEW RECORD!  "+Kt(old.s)+" → "+Kt(sc):"NEW RECORD!（初記録）")}
 else L.unshift("ハイスコア "+Kt(old.s)+(old.r?"（"+old.r+"）":""));_mrHSInfo()}
-K("rExtra").textContent=L.join("\n");_mrAnalyze(quit)}
+K("rExtra").textContent=L.join("\n");_netResult(quit,rk);_mrAnalyze(quit)}
 K("rAdj").onclick=function(){var v=+K("rAdj").dataset.v;K("offset").value=v;ht("offset",v);Ho();K("rAdj").hidden=!0;Tt("判定オフセットを "+v+"ms にしました")};
 
 /* --- 初期化・イベント配線 --- */
@@ -781,7 +825,7 @@ async function _edLoadRec(key){var rec=null;try{rec=await _mrIDB("readonly",func
 async function _edSave(quiet){if(_edPreview||(!_edOpenFlag&&!_edReturn))return!1;clearTimeout(_edSaveT);_edValidate();var key=_edKey(),notes=_edNotes.map(_edStripOne),rec={id:key,songId:_edSongId(),key:key,diff:K("diff").value,lanes:_edL(),notes:notes,meta:_edMeta,updated:Date.now()},ok=!1;
 try{await _mrIDB("readwrite",function(st){return st.put(rec)},"charts");ok=!0}catch(e){try{localStorage.setItem("mr_ed_"+key,JSON.stringify(rec));ok=!0}catch(e2){}}
 if(ok){_edMem={key:key,notes:notes,meta:_edMeta};_edDirty=!1;if(!quiet)Tt("譜面を保存しました");_edTitle()}else if(!quiet)Tt("譜面を保存できませんでした");return ok}
-async function _edChartForPlay(diff){if(_tutActive){_edUsed=!1;return _tutBuild()}_edUsed=!1;var key=_edKey();if(K("edUse").checked||_edReturn){var rec=(_edMem&&_edMem.key===key)?_edMem:await _edLoadRec(key);if(rec){_edUsed=!0;return _edBuildChart(rec.notes,rec.meta)}}return wa(Sa(xt),+K("lanes").value,diff)}
+async function _edChartForPlay(diff){if(_tutActive){_edUsed=!1;return _tutBuild()}_edUsed=!1;if(_netCur){return _edBuildChart(_netCur.notes,_netCur.meta)}var key=_edKey();if(K("edUse").checked||_edReturn){var rec=(_edMem&&_edMem.key===key)?_edMem:await _edLoadRec(key);if(rec){_edUsed=!0;return _edBuildChart(rec.notes,rec.meta)}}return wa(Sa(xt),+K("lanes").value,diff)}
 async function _edRefreshMenu(){var row=K("edUseRow");if(!row)return;if(!xt){row.hidden=!0;return}var rec=null;try{rec=await _edLoadRec(_edKey())}catch(e){}row.hidden=!rec}
 function _edExport(){var data={version:2,app:"MIDI Rhythm",songHash:_edSongId(),songName:_edSongName,diff:K("diff").value,lanes:_edL(),notes:_edNotes.map(_edStripOne)},a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:"application/json"}));a.download=(_edSongName||"chart")+"_"+data.diff+"_"+data.lanes+"lane.json";a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},5e3)}
 function _edImportFile(f){var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d||!Array.isArray(d.notes))throw new Error("譜面データが見つかりません");if(d.lanes&&d.lanes!==_edL()){Tt("レーン数が違います（ファイル: "+d.lanes+" / 現在: "+_edL()+"）");return}if(d.songHash&&d.songHash!==_edSongId()&&!confirm("別の曲の譜面です。読み込みますか？"))return;_edUndoPush();_edNotes=d.notes.map(_edHydrateOne);_edNotes.forEach(function(n){if(n.kind==="glide"&&n.pts&&n.pts.length>1)_edRebuildGlide(n)});_edSel=[];_edDur=Math.max(_edDur,Math.max.apply(null,_edNotes.map(function(n){return n.end}))+1);_edAfterEdit();Tt("譜面を読み込みました")}catch(e){Tt("読み込めませんでした: "+e.message)}};r.readAsText(f)}
@@ -1188,67 +1232,176 @@ var h=_edHydrateOne(n);if(h.kind==="glide"&&h.pts&&h.pts.length>1)_edRebuildGlid
 out.sort(function(a,b){return a.t-b.t});return out}
 
 /* --- 設定UI --- */
-function _netSum(){K("netSum").textContent=_netBase()?"（接続先設定済み）":"（未設定）";K("netUrl").value=ut("mr_api")||_NET_DEFAULT}
-K("netSave").onclick=function(){var u=K("netUrl").value.trim().replace(/\/+$/,"");if(u&&!/^https?:\/\//i.test(u)){Tt("http:// または https:// から始まるURLを入力してください");return}ht("mr_api",u);_netSum();Tt(u?"共有サーバーのURLを保存しました":"共有サーバーのURLを削除しました")};
+function _netSum(){K("netSum").textContent=_netBase()?"":"（接続先未設定）";K("netUrl").value=ut("mr_api")||_NET_DEFAULT;K("nsName").value=ut("mr_rank_name")||""}
+function _netName(){return(ut("mr_rank_name")||ut("mr_np_author")||"").trim().slice(0,24)}
+function _netSafe(u){return typeof u==="string"&&u.length<=500&&/^https?:\/\//i.test(u)?u:""}
+K("netSave").onclick=function(){var u=K("netUrl").value.trim().replace(/\/+$/,"");if(u&&!/^https?:\/\//i.test(u)){Tt("http:// または https:// から始まるURLを入力してください");return}ht("mr_api",u);_netSum();Tt(u?"共有サーバーのURLを保存しました":"共有サーバーのURLを削除しました");if(!K("netScreen").hidden)_nsLoad(!0)};
 K("netTest").onclick=async function(){K("netSave").click();try{var r=await _netReq("GET","/api/health");Tt(r&&r.ok?"接続できました":"応答が想定と違います")}catch(e){Tt("接続できませんでした: "+e.message)}};
+K("nsName").onchange=function(){ht("mr_rank_name",K("nsName").value.trim().slice(0,24))};
 
-/* --- 探す・使う --- */
+/* --- 一覧画面（全公開譜面・並び替え・検索） --- */
 function _netMine(){return _mrJ("mr_pub",[])}
-function _netBadge(sim){return sim>=.85?"一致":"近似 "+Math.round(sim*100)+"%"}
-function _netRender(items){var box=K("netList");box.textContent="";if(!items.length){box.textContent="この曲（と似た曲）の共有譜面はまだありません。";return}
-var mine=_netMine();items.forEach(function(it){var row=document.createElement("div");row.className="netitem";var head=document.createElement("div"),b=document.createElement("b"),sp=document.createElement("span");b.textContent=it.name+" — "+it.title;
-if(it.sim!==undefined){sp.className="netbadge"+(it.sim>=.85?" ok":"");sp.textContent=_netBadge(it.sim)}head.append(b,document.createTextNode(" "),sp);
-var meta=document.createElement("small");meta.textContent="作者 "+(it.author||"匿名")+" ／ "+it.lanes+"レーン "+String(it.diff).toUpperCase()+" ／ "+it.notes+"ノーツ ／ ♥"+it.likes+" ▶"+it.plays;
+var _NS_SORTS=["new","popular","plays","updated","title"];
+var _ns={sort:_NS_SORTS.indexOf(ut("mr_ns_sort"))>=0?ut("mr_ns_sort"):"new",q:"",lanes:"",diff:"",offset:0,items:[],busy:!1,seq:0};
+function _nsSyncCtl(){K("nsSort").value=_ns.sort;K("nsLanes").value=_ns.lanes;K("nsDiff").value=_ns.diff;K("nsQ").value=_ns.q}
+function _nsOpen(){K("netScreen").hidden=!1;_nsSyncCtl();if(!_netBase()){K("nsSet").open=!0;K("nsList").textContent="";K("nsMore").hidden=!0;K("nsStat").textContent="共有サーバーのURLを設定すると、みんなの譜面が表示されます。";return}_nsLoad(!0)}
+function _nsClose(){K("netScreen").hidden=!0}
+async function _nsLoad(reset){
+if(!reset&&_ns.busy)return;
+var my=++_ns.seq;_ns.busy=!0;
+if(reset){_ns.offset=0;_ns.items=[];K("nsList").textContent=""}
+K("nsMore").hidden=!0;K("nsStat").textContent="読み込み中…";
+try{var p=["limit=20","offset="+_ns.offset,"sort="+encodeURIComponent(_ns.sort)];
+if(_ns.q)p.push("q="+encodeURIComponent(_ns.q));if(_ns.lanes)p.push("lanes="+_ns.lanes);if(_ns.diff)p.push("diff="+_ns.diff);
+var r=await _netReq("GET","/api/recent?"+p.join("&"));
+if(my!==_ns.seq)return;
+var items=r.items||[];_ns.offset+=items.length;_ns.items=_ns.items.concat(items);_nsRender(items);
+K("nsStat").textContent=_ns.items.length?_ns.items.length+"件"+(r.more?"（続きあり）":""):"該当する譜面はまだありません。";
+K("nsMore").hidden=!r.more}
+catch(e){if(my===_ns.seq)K("nsStat").textContent="読み込めませんでした: "+e.message}
+finally{if(my===_ns.seq)_ns.busy=!1}}
+function _nsBtn(bt,label,fn,cls){var x=document.createElement("button");x.type="button";x.className=cls===void 0?"sub":cls;x.textContent=label;x.onclick=function(){fn(x)};bt.append(x);return x}
+function _nsRender(items){var box=K("nsList"),mine=_netMine();
+items.forEach(function(it){var row=document.createElement("div");row.className="netitem";
+var head=document.createElement("div"),b=document.createElement("b"),sp=document.createElement("span");
+b.textContent=it.title;sp.className="netbadge";sp.textContent=it.name;head.append(b," ",sp);
+var meta=document.createElement("small");meta.textContent="作者 "+(it.author||"匿名")+" ／ "+it.lanes+"レーン "+String(it.diff).toUpperCase()+" ／ "+it.notes+"ノーツ ／ ♥"+it.likes+" ▶"+it.plays+" ／ 挑戦者 "+(it.players||0)+"人";
 var bt=document.createElement("div");bt.className="netrow";
-function btn(label,fn,cls){var x=document.createElement("button");x.type="button";x.className=cls||"sub";x.textContent=label;x.onclick=function(){fn(x)};bt.append(x);return x}
-btn("使う",function(){_netUse(it.id)},"");btn("♥ "+it.likes,function(x){_netLike(it.id,x)});
-if(mine.some(function(p){return p.id===it.id}))btn("削除",function(){_netDelete(it.id)});else btn("通報",function(){_netReport(it.id)});
-row.append(head,meta,bt);box.append(row)})}
-async function _netFind(){if(!xt){Tt("先にMIDIを選んでください");return}K("netList").textContent="検索中…";
-try{var sk=_netSketch(Sa(xt));if(sk.length<8)throw new Error("この曲は短すぎて照合できません");var r=await _netReq("POST","/api/match",{sketch:sk});_netRender(r.items||[]);K("netSum").textContent="（"+(r.items||[]).length+"件）"}
-catch(e){K("netList").textContent="";Tt("検索できませんでした: "+e.message)}}
-K("netFind").onclick=_netFind;
-async function _netUse(id){var it;try{it=await _netReq("GET","/api/charts/"+encodeURIComponent(id))}catch(e){Tt("譜面を取得できませんでした: "+e.message);return}
-if(!xt){Tt("先にMIDIを選んでください");return}
-var parsed=Sa(xt),sim=_netJacc(_netSketch(parsed),it.sketch||[]);
-if(sim<.5&&!confirm("この譜面は別の曲用かもしれません（一致度 "+Math.round(sim*100)+"%）。それでも適用しますか？"))return;
-var lanes=it.lanes|0;if(lanes<3||lanes>8){Tt("この譜面は対応していません");return}
-K("lanes").value=String(lanes);ht("lanes",String(lanes));if(["easy","normal","hard","lunatic"].indexOf(it.diff)>=0){K("diff").value=it.diff;ht("diff",it.diff)}
-K("lanes").dispatchEvent(new Event("change"));K("diff").dispatchEvent(new Event("change"));
-var key=_edKey(),old=await _edLoadRec(key);if(old&&!confirm("この設定には編集済みの譜面があります。共有譜面で上書きしますか？"))return;
+_nsBtn(bt,"▶ プレイ",function(){_ndOpen(it,!0)},"");
+_nsBtn(bt,"ランキング",function(){_ndOpen(it,!1)});
+_nsBtn(bt,"♥ "+it.likes,function(x){_netLike(it.id,x)});
+if(mine.some(function(p){return p.id===it.id}))_nsBtn(bt,"削除",function(){_netDelete(it.id)});else _nsBtn(bt,"通報",function(){_netReport(it.id)});
+row.append(head,meta,bt);K("nsList").append(row)})}
+
+/* --- ランキング表示（共通） --- */
+function _rkRender(box,items){box.textContent="";
+items.forEach(function(s){var r=document.createElement("div");r.className="rkrow"+(s.me?" me":"");
+var a=document.createElement("span"),n=document.createElement("span"),v=document.createElement("span"),g=document.createElement("span");
+a.className="rkpos";a.textContent=s.pos+"位";n.className="rkname";n.textContent=s.name;v.className="rkscore";v.textContent=Kt(s.score);
+g.className="rkgrade";g.textContent=(s.rank||"")+(s.label?" "+s.label:"");if(s.rank&&_mrRankCol[s.rank])g.style.color=_mrRankCol[s.rank];
+r.append(a,n,v,g);box.append(r)})}
+
+/* --- 譜面の詳細（ランキング・MIDI入手先・プレイ） --- */
+var _nd=null,_ndTok=0,_netSkC={};
+function _ndMetaText(x){return(x.name||"")+" ／ 作者 "+(x.author||"匿名")+" ／ "+x.lanes+"レーン "+String(x.diff).toUpperCase()+(x.notes?" ／ "+x.notes+"ノーツ":"")+(x.likes!=null?" ／ ♥"+x.likes+" ▶"+x.plays:"")}
+function _ndOpen(it,auto){var tok=++_ndTok;_nd={it:it,full:null,busy:!1,tok:tok};
+K("ndTitle").textContent=it.title||"";K("ndMeta").textContent=_ndMetaText(it);K("ndMidi").textContent="";K("ndRank").textContent="読み込み中…";K("ndPlay").disabled=!0;K("netDetail").hidden=!1;
+_ndRankLoad(it.id,tok);
+_netReq("GET","/api/charts/"+encodeURIComponent(it.id)).then(function(full){if(tok!==_ndTok)return;_nd.full=full;K("ndMeta").textContent=_ndMetaText(full);K("ndPlay").disabled=!1;if(auto)_ndPlay()})
+.catch(function(e){if(tok!==_ndTok)return;Tt("譜面を取得できませんでした: "+e.message)})}
+async function _ndRankLoad(id,tok){var box=K("ndRank");
+try{var r=await _netReq("GET","/api/charts/"+encodeURIComponent(id)+"/scores?limit=30");if(tok!==_ndTok)return;
+if(!r.items.length){box.textContent="まだ記録がありません。最初の挑戦者になろう！";return}
+_rkRender(box,r.items);
+if(r.me&&r.me.pos>r.items.length){var m=document.createElement("small");m.textContent="あなたの記録: "+r.me.pos+"位 "+Kt(r.me.score);box.append(m)}
+var t=document.createElement("small");t.textContent="全"+r.total+"人";box.append(t)}
+catch(e){if(tok===_ndTok)box.textContent="ランキングを読み込めませんでした: "+e.message}}
+function _ndShowMidi(full,reason,sim){var box=K("ndMidi");box.textContent="";
+var p=document.createElement("p");p.className="status";p.style.textAlign="left";
+if(reason==="checking")p.textContent="読み込み中のMIDIと保存した曲から、この譜面の曲を探しています…";
+else if(reason==="ok")p.textContent="同じ曲のMIDIを確認しました。";
+else if(reason==="mismatch")p.textContent="選んだMIDIは、この譜面の曲と一致しません"+(sim!=null?"（一致度 "+Math.round(sim*100)+"%）":"")+"。同じ曲のMIDIを用意してください。";
+else p.textContent="この譜面で遊ぶには、同じ曲のMIDIが必要です（読み込み中のMIDI・保存した曲には見つかりませんでした）。MIDIを手に入れたら、下のボタンで読み込むとそのまま遊べます。";
+box.append(p);
+if(reason==="none"||reason==="mismatch"){var u=_netSafe(full&&full.url);
+if(u){var a=document.createElement("a");a.className="nlink";a.href=u;a.target="_blank";a.rel="noopener noreferrer nofollow";a.textContent="MIDIはこちらから入手できます";box.append(a);
+var host="";try{host=new URL(u).hostname}catch(e){}if(host){var sm=document.createElement("small");sm.textContent=host;box.append(sm)}}
+else{var q=document.createElement("small");q.textContent="入手先は登録されていません。曲名「"+(full&&full.title||"")+"」で探してください。";box.append(q)}}}
+async function _ndEnsureMidi(it){var sk=it.sketch||[];
+if(xt){try{if(_netJacc(_netSketch(Sa(xt)),sk)>=.5)return{ok:!0}}catch(e){}}
+var lib=_mrMeta(),best=null;
+for(var i=0;i<lib.length;i++){var sid=lib[i].id;
+try{var ssk=_netSkC[sid];if(!ssk){var rec=await _mrIDB("readonly",function(st){return st.get(sid)});if(!rec||!rec.data)continue;ssk=_netSkC[sid]=_netSketch(Sa(rec.data))}
+var s2=_netJacc(ssk,sk);if(s2>=.5&&(!best||s2>best.sim))best={id:sid,sim:s2}}catch(e){}
+if(best&&best.sim>=.85)break}
+if(best){await _mrPick(best.id);Ai();if(xt)return{ok:!0}}
+return{ok:!1,reason:"none"}}
+async function _ndPlay(){var d=_nd;if(!d||!d.full||d.busy)return;var it=d.full,tok=d.tok;d.busy=!0;K("ndPlay").disabled=!0;
+try{var lanes=it.lanes|0;if(lanes<3||lanes>8){Tt("この譜面は対応していません");return}
 var notes=_netDec(it.data&&it.data.notes,lanes);if(notes.length<4){Tt("譜面データが不正でした");return}
-var sc=it.data.scroll&&Array.isArray(it.data.scroll.S)?{dt:+it.data.scroll.dt||.05,S:it.data.scroll.S.slice(0,30000).map(Number)}:null,end=0;parsed.forEach(function(n){if(n.end>end)end=n.end});
+_ndShowMidi(it,"checking");var m=await _ndEnsureMidi(it);if(tok!==_ndTok)return;
+if(!m.ok){_ndShowMidi(it,m.reason);return}
+Ai();if(K("start").disabled){_ndShowMidi(it,"ok");Tt("音源の読み込みが終わるまで、少しお待ちください");return}
+var parsed=Sa(xt),end=0;parsed.forEach(function(n){if(n.end>end)end=n.end});
+var sc=it.data.scroll&&Array.isArray(it.data.scroll.S)?{dt:+it.data.scroll.dt||.05,S:it.data.scroll.S.slice(0,30000).map(Number)}:null;
 var meta={beats:_mrBt(parsed,end+1,function(t){return sc?_edBA(t,{dt:sc.dt,S:sc.S}):t}),minM:1,scrollS:sc?sc.S:null,scrollDt:sc?sc.dt:.05,cues:[],info:"共有: "+it.name+(it.author?" / "+it.author:"")};
-var rec={id:key,songId:_edSongId(),key:key,diff:K("diff").value,lanes:lanes,notes:notes,meta:meta,updated:Date.now(),shared:{id:it.id,name:it.name,author:it.author}};
-try{await _mrIDB("readwrite",function(st){return st.put(rec)},"charts")}catch(e){try{localStorage.setItem("mr_ed_"+key,JSON.stringify(rec))}catch(e2){Tt("端末に保存できませんでした");return}}
-K("edUse").checked=!0;ht("mr_ed_use","1");_edRefreshMenu();_pvSchedule();_netReq("POST","/api/charts/"+encodeURIComponent(id)+"/play",{}).catch(function(){});
-Tt("「"+it.name+"」を適用しました（"+lanes+"レーン "+String(it.diff).toUpperCase()+"）。開始で遊べます")}
+var prev={lanes:K("lanes").value,diff:K("diff").value};
+K("lanes").value=String(lanes);if(["easy","normal","hard","lunatic"].indexOf(it.diff)>=0)K("diff").value=it.diff;
+K("lanes").dispatchEvent(new Event("change"));K("diff").dispatchEvent(new Event("change"));
+_netCur={id:it.id,title:it.title,name:it.name,notes:notes,meta:meta,lanes:lanes,prev:prev,from:d.it};
+K("netDetail").hidden=!0;K("netScreen").hidden=!0;_ndTok++;
+_netReq("POST","/api/charts/"+encodeURIComponent(it.id)+"/play",{}).catch(function(){});
+K("start").click()}
+catch(e){Tt("開始できませんでした: "+e.message)}
+finally{d.busy=!1;K("ndPlay").disabled=!(_nd&&_nd.full)}}
+K("ndFile").onchange=async function(){var f=this.files&&this.files[0];this.value="";if(!f||!_nd||!_nd.full)return;
+try{var buf=await f.arrayBuffer(),sim=_netJacc(_netSketch(Sa(buf)),_nd.full.sketch||[]);
+if(sim<.5){_ndShowMidi(_nd.full,"mismatch",sim);return}
+xt=buf;K("fname").textContent=f.name;Ai();await _mrSong(buf,f.name.replace(/\.(mid|midi)$/i,""));if(typeof _pvSchedule==="function")_pvSchedule();
+_ndPlay()}catch(e){Tt("MIDIを読み込めませんでした: "+e.message)}};
+K("ndPlay").onclick=_ndPlay;
+K("ndClose").onclick=function(){K("netDetail").hidden=!0;_ndTok++};
+
+/* --- 共有譜面でのプレイ後処理 --- */
+var _netCur=null,_netLast=null;
+function _netAfterGame(cur){_netCur=null;_netLast=null;
+try{K("lanes").value=cur.prev.lanes;ht("lanes",cur.prev.lanes);K("diff").value=cur.prev.diff;ht("diff",cur.prev.diff);K("lanes").dispatchEvent(new Event("change"));K("diff").dispatchEvent(new Event("change"))}catch(e){}
+var st=K("status").textContent;if(st&&st.indexOf("エラー")===0)Tt(st);
+K("netScreen").hidden=!1;_nsSyncCtl();if(cur.from)_ndOpen(cur.from,!1)}
+var _edAfterGameBase=_edAfterGame;
+_edAfterGame=function(){var cur=_netCur,pr=_prActive,tu=_tutActive,er=!!_edReturn;_edAfterGameBase.apply(this,arguments);if(cur&&!pr&&!tu&&!er)_netAfterGame(cur)};
+
+/* --- ランキング送信（リザルト画面） --- */
+function _netResult(quit,rk){var box=K("rNetBox");box.hidden=!0;K("rNetList").textContent="";
+if(!_netCur||quit||pe||_edPartial||_tutActive||!_netBase())return;
+_netLast={score:Math.round(On()),combo:Pn,rank:rk||"",label:K("rLabel").textContent||""};
+box.hidden=!1;K("rNetMsg").textContent="ランキングに送信中…";_netSubmit()}
+async function _netSubmit(){var cur=_netCur,l=_netLast;if(!cur||!l)return;var msg=K("rNetMsg"),list=K("rNetList");
+try{var r=await _netReq("POST","/api/charts/"+encodeURIComponent(cur.id)+"/scores",{score:l.score,combo:l.combo,rank:l.rank,label:l.label==="SCORE"?"":l.label,name:_netName()});
+if(_netCur!==cur)return;
+msg.textContent=(r.improved?"ランキング更新！ ":"")+"あなたの自己ベスト "+Kt(r.best?r.best.score:l.score)+"（"+(r.pos||"-")+"位 / "+r.total+"人中）";
+_rkRender(list,r.top||[])}
+catch(e){if(_netCur===cur)msg.textContent="ランキングに送信できませんでした: "+e.message}}
+K("rNetName").onclick=function(){var n=prompt("ランキングに表示する名前（24文字まで・空欄で匿名）",_netName());if(n===null)return;n=n.trim().slice(0,24);ht("mr_rank_name",n);_netSum();if(_netCur&&_netLast){K("rNetMsg").textContent="名前を更新中…";_netSubmit()}};
+
+/* --- いいね・通報・削除 --- */
 async function _netLike(id,btn){try{var r=await _netReq("POST","/api/charts/"+encodeURIComponent(id)+"/like",{});btn.textContent="♥ "+r.likes;btn.classList.toggle("on",!!r.liked)}catch(e){Tt("いいねできませんでした: "+e.message)}}
 async function _netReport(id){if(!confirm("この譜面を通報しますか？（不適切な内容の場合のみ）"))return;try{await _netReq("POST","/api/charts/"+encodeURIComponent(id)+"/report",{});Tt("通報しました。ご協力ありがとうございます")}catch(e){Tt("通報できませんでした: "+e.message)}}
-async function _netDelete(id){var p=_netMine().find(function(x){return x.id===id});if(!p||!confirm("公開した譜面「"+p.name+"」を削除しますか？"))return;
-try{await _netReq("DELETE","/api/charts/"+encodeURIComponent(id),void 0,{"X-Token":p.token});_mrJS("mr_pub",_netMine().filter(function(x){return x.id!==id}));_netMineRender();K("netFind").click();Tt("削除しました")}catch(e){Tt("削除できませんでした: "+e.message)}}
-K("netGet").onclick=function(){var c=K("netCode").value.trim().toLowerCase();if(!c){Tt("共有コードを入力してください");return}_netUse(c)};
-function _netMineRender(){var l=_netMine(),box=K("netMine");K("netMineBox").hidden=!l.length;box.textContent="";l.slice().reverse().forEach(function(p){var row=document.createElement("div");row.className="netitem";var b=document.createElement("b"),s=document.createElement("small"),bt=document.createElement("div");bt.className="netrow";b.textContent=p.name+" — "+p.title;s.textContent="コード "+p.id+" ／ "+p.lanes+"レーン "+String(p.diff).toUpperCase();
-var c=document.createElement("button");c.type="button";c.className="sub";c.textContent="コードをコピー";c.onclick=function(){try{navigator.clipboard.writeText(p.id);Tt("コピーしました")}catch(e){Tt("コード: "+p.id)}};
-var d=document.createElement("button");d.type="button";d.className="sub";d.textContent="削除";d.onclick=function(){_netDelete(p.id)};bt.append(c,d);row.append(b,s,bt);box.append(row)})}
+async function _netDelete(id){var p=_netMine().find(function(x){return x.id===id});if(!p||!confirm("公開した譜面「"+p.name+"」を削除しますか？（ランキングも消えます）"))return;
+try{await _netReq("DELETE","/api/charts/"+encodeURIComponent(id),void 0,{"X-Token":p.token});_mrJS("mr_pub",_netMine().filter(function(x){return x.id!==id}));_netMineRender();if(!K("netScreen").hidden)_nsLoad(!0);K("netDetail").hidden=!0;_ndTok++;Tt("削除しました")}catch(e){Tt("削除できませんでした: "+e.message)}}
+function _netMineRender(){var l=_netMine(),box=K("netMine");K("netMineBox").hidden=!l.length;box.textContent="";
+l.slice().reverse().forEach(function(p){var row=document.createElement("div");row.className="netitem";var b=document.createElement("b"),s=document.createElement("small"),bt=document.createElement("div");bt.className="netrow";
+b.textContent=p.title+" — "+p.name;s.textContent=p.lanes+"レーン "+String(p.diff).toUpperCase()+(p.url?" ／ MIDI入手先あり":"");
+_nsBtn(bt,"開く",function(){_ndOpen({id:p.id,title:p.title,name:p.name,author:"",lanes:p.lanes,diff:p.diff},!1)});
+_nsBtn(bt,"削除",function(){_netDelete(p.id)});row.append(b,s,bt);box.append(row)})}
 
 /* --- 公開（エディタの「⋯」から） --- */
 function _netOpenPub(){if(!_netBase()){Tt("共有サーバーのURLが未設定です（メニューの「オンライン譜面」で設定してください）");return}if(!_edNotes.length){Tt("ノーツがありません");return}
-K("npTitle").value=_edSongName||"";K("npName").value=ut("mr_np_name")||"";K("npAuthor").value=ut("mr_np_author")||"";K("npAgree").checked=!1;K("npRes").hidden=!0;K("npForm").hidden=!1;K("netPubDlg").hidden=!1}
-async function _netDoPub(){var title=K("npTitle").value.trim(),name=K("npName").value.trim(),author=K("npAuthor").value.trim();
-if(!title||!name){Tt("曲名と譜面の名前を入力してください");return}if(!K("npAgree").checked){Tt("公開内容への同意にチェックしてください");return}
+var prev=_netMine().filter(function(x){return x.key===_edKey()}).pop();
+K("npTitle").value=_edSongName||"";K("npName").value=ut("mr_np_name")||"";K("npAuthor").value=ut("mr_np_author")||"";K("npUrl").value=prev&&prev.url||"";K("npAgree").checked=!1;K("npRes").hidden=!0;K("npForm").hidden=!1;K("netPubDlg").hidden=!1}
+async function _netDoPub(){var title=K("npTitle").value.trim(),name=K("npName").value.trim(),author=K("npAuthor").value.trim(),url=K("npUrl").value.trim();
+if(!title||!name){Tt("曲名と譜面の名前を入力してください");return}
+if(url){if(url.length>500){Tt("URLは500文字までです");return}if(!/^https?:\/\//i.test(url)){Tt("URLは http:// または https:// から始めてください");return}}
+if(!K("npAgree").checked){Tt("公開内容への同意にチェックしてください");return}
 K("npGo").disabled=!0;
 try{await _edSave(!0);var parsed=_edParsed||Sa(xt),data={v:1,notes:_netEnc(_edNotes.map(_edStripOne))};
 if(_edMeta&&_edMeta.scrollS)data.scroll={dt:_edMeta.scrollDt||.05,S:Array.from(_edMeta.scrollS,function(v){return Math.round(v*1e4)/1e4})};
-var body={title:title,name:name,author:author,lanes:_edL(),diff:K("diff").value,dur:Math.max(1,Math.round(_edDur*10)/10),sketch:_netSketch(parsed),data:data},ek=_edKey(),pubs=_netMine(),prev=pubs.filter(function(x){return x.key===ek}).pop(),res,updated=!1;
-if(prev&&confirm("前回公開した譜面（コード "+prev.id+"）を更新しますか？\n［キャンセル］で新しい譜面として公開します")){res=await _netReq("PUT","/api/charts/"+prev.id,body,{"X-Token":prev.token});res={id:prev.id,token:prev.token};updated=!0}
+var body={title:title,name:name,author:author,url:url,lanes:_edL(),diff:K("diff").value,dur:Math.max(1,Math.round(_edDur*10)/10),sketch:_netSketch(parsed),data:data},ek=_edKey(),pubs=_netMine(),prev=pubs.filter(function(x){return x.key===ek}).pop(),res,updated=!1,reset=!1;
+if(prev&&confirm("前回公開した譜面を更新しますか？\n（譜面の中身を変えた場合、ランキングはリセットされます）\n［キャンセル］で新しい譜面として公開します")){var pr=await _netReq("PUT","/api/charts/"+prev.id,body,{"X-Token":prev.token});res={id:prev.id,token:prev.token};reset=!!pr.rankingReset;updated=!0}
 else res=await _netReq("POST","/api/charts",body);
-var item={id:res.id,token:res.token,key:ek,name:name,title:title,lanes:body.lanes,diff:body.diff,date:Date.now()};
+var item={id:res.id,token:res.token,key:ek,name:name,title:title,lanes:body.lanes,diff:body.diff,url:url,date:Date.now()};
 if(updated)pubs=pubs.map(function(x){return x.id===res.id?item:x});else pubs.push(item);_mrJS("mr_pub",pubs);ht("mr_np_name",name);ht("mr_np_author",author);
-K("npCode").textContent=res.id;K("npForm").hidden=!0;K("npRes").hidden=!1;_netMineRender()}
+K("npMsg").textContent=updated?"更新しました！"+(reset?"（譜面の内容が変わったため、ランキングはリセットされました）":""):"公開しました！「オンライン譜面」の一覧に表示されます。";
+K("npForm").hidden=!0;K("npRes").hidden=!1;_netMineRender()}
 catch(e){Tt("公開できませんでした: "+e.message)}finally{K("npGo").disabled=!1}}
 K("npGo").onclick=_netDoPub;K("npCancel").onclick=function(){K("netPubDlg").hidden=!0};K("npClose").onclick=function(){K("netPubDlg").hidden=!0};
-K("npCopy").onclick=function(){try{navigator.clipboard.writeText(K("npCode").textContent);Tt("コピーしました")}catch(e){Tt("コードを控えてください")}};
+
+/* --- 画面の配線 --- */
+K("netOpen").onclick=_nsOpen;K("nsBack").onclick=_nsClose;K("nsRefresh").onclick=function(){_nsLoad(!0)};K("nsMore").onclick=function(){_nsLoad(!1)};
+K("nsSort").onchange=function(){_ns.sort=this.value;ht("mr_ns_sort",this.value);_nsLoad(!0)};
+K("nsLanes").onchange=function(){_ns.lanes=this.value;_nsLoad(!0)};
+K("nsDiff").onchange=function(){_ns.diff=this.value;_nsLoad(!0)};
+var _nsT=0;K("nsQ").oninput=function(){var v=this.value.trim();clearTimeout(_nsT);_nsT=setTimeout(function(){if(v===_ns.q)return;_ns.q=v;_nsLoad(!0)},400)};
 _netSum();_netMineRender();
 
 })();
