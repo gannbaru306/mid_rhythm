@@ -167,10 +167,11 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
 .npbox label{display:grid;gap:4px;font-size:13px;color:var(--mute)}
 .npcode{font-size:30px;font-weight:800;letter-spacing:4px;text-align:center;padding:10px;border:1px dashed var(--tap);border-radius:10px;color:var(--tap)}
 .tin{padding:10px;background:#161a2e;color:var(--fg);border:1px solid var(--line);border-radius:8px;font-size:16px;width:100%;box-sizing:border-box}
-#netScreen{position:fixed;inset:0;z-index:52;background:var(--bg);display:flex;flex-direction:column;gap:10px;padding:max(12px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom));max-width:720px;margin:0 auto;overflow-y:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch}
-#nsTop{display:flex;align-items:center;gap:10px}
-#nsTop b{flex:1;text-align:center;font-size:16px}
-#nsTop button{padding:8px 12px;font-size:14px}
+#setScreen,#netScreen{position:fixed;inset:0;z-index:52;background:var(--bg);display:flex;flex-direction:column;gap:10px;padding:max(12px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom));max-width:720px;margin:0 auto;overflow-y:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+#nsTop,#ssTop{display:flex;align-items:center;gap:10px}
+#nsTop b,#ssTop b{flex:1;text-align:center;font-size:16px}
+#nsTop button,#ssTop button{padding:8px 12px;font-size:14px}
+#setScreen{max-width:760px}
 #nsBar{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 #nsBar #nsQ{grid-column:1/-1}
 #nsBar select{font-size:14px;padding:8px}
@@ -203,67 +204,17 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
   <h1>MIDI Rhythm</h1>
   <p class="lead">MIDIファイルを選ぶと、譜面を自動で作ります。</p>
   <div id="welcome" class="welcome" hidden><b>はじめまして！</b><span>まずは遊び方を見るか、デモ曲で試してみましょう。</span><div class="wbtns"><button id="wTut" type="button">遊び方を見る</button><button id="wDemo" class="sub" type="button">デモ曲で遊ぶ</button><button id="wClose" class="sub" type="button">閉じる</button></div></div>
-  <button id="tutOpen" class="sub" type="button">遊び方・チュートリアル</button>
   <label class="file">MIDIファイルを選択<input id="midi" type="file" accept=".mid,.midi,audio/midi,audio/x-midi"></label>
   <p id="fname" class="fname">未選択</p>
   <p id="hsInfo" class="fname" hidden></p>
   <details id="demoBox"><summary>デモ曲（内蔵・すぐ遊べます）</summary><div id="demoList"></div></details>
   <details id="libBox"><summary>保存した曲 <span id="libN"></span></summary><div id="lib"></div></details>
   <label class="file sub" id="sfRow" hidden>SoundFontを選択<input id="sf" type="file" accept=".sf2,.sf3"></label>
-  <div class="opts">
-    <label>難易度
-      <select id="diff"><option value="easy">EASY</option><option value="normal" selected>NORMAL</option><option value="hard">HARD</option><option value="lunatic">LUNATIC、狂気的ー</option><option value="custom">CUSTOM（自分で設定）</option></select>
-    </label>
-    <label>レーン数
-      <select id="lanes"><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select>
-    </label>
-    <label>ノーツ速度 <b id="speedV"></b>
-      <input id="speed" type="range" min="0.8" max="5" step="0.1">
-    </label>
-    <label>曲の音量 <b id="volV"></b>
-      <input id="vol" type="range" min="0" max="100" step="5">
-    </label>
-    <label>タップ音<b id="sfxV"></b>
-      <input id="sfx" type="range" min="0" max="100" step="5">
-    </label>
-    <label class="chk"><input id="lite" type="checkbox"> 軽量モード</label>
-    <label class="chk"><input id="auto" type="checkbox"> オートプレイ</label>
-    <label class="chk"><input id="blines" type="checkbox"> 小節線・拍線を表示</label>
-    <label class="chk"><input id="fson" type="checkbox"> FAST/SLOW表示</label>
-    <button id="calBtn" class="sub" type="button">ズレ調整（拍に合わせてタップ）</button>
-    <label>判定オフセット <b id="offsetV"></b>
-      <input id="offset" type="range" min="-300" max="300" step="10">
-    </label>
-  </div>
-  <div id="cust" class="cust" hidden><div><b>カスタム難易度</b> <span class="pn">プリセットから読み込み:</span></div><div class="pre" id="custPre"></div><div id="custBody" class="opts"></div></div>
-  <details id="keyBox"><summary>キー設定（PC）</summary><p class="status">ボタンを押してから割り当てたいキーを押すと変更できます。奇数レーンは中央を Space にしています。</p><div id="keycfg" class="keycfg"></div></details>
-  <details id="trkBox" hidden><summary>トラック選択 <span id="trkSum"></span></summary>
-    <p class="status" style="text-align:left">譜面にするパートを選べます。「自動」はメロディを判定して切り替えます。</p>
-    <div class="trkmode"><button id="trkAuto" class="sub on" type="button">自動</button><button id="trkMan" class="sub" type="button">手動</button></div>
-    <label class="chk" id="trkMergeRow" hidden><input id="trkMerge" type="checkbox"> 選んだトラックを同時に使う（混合）</label>
-    <div id="trkList"></div>
-  </details>
-  <details id="pvBox"><summary>譜面プレビュー <span id="pvSum"></span></summary>
-    <div id="pvStat" class="rdetail" style="text-align:left;margin-top:8px"></div>
-    <canvas id="pvMini" width="720" height="140" style="width:100%;display:block;margin-top:8px;border:1px solid var(--line);border-radius:10px;touch-action:none"></canvas>
-    <p class="status" id="pvCur" style="margin-top:6px"></p>
-    <button id="pvOpen" class="sub" type="button">▶ プレビューを開く（再生）</button>
-  </details>
-  <button id="netOpen" class="sub" type="button">オンライン譜面（みんなの譜面・ランキング） <span id="netSum"></span></button>
-  <details id="dispBox"><summary>表示設定（ノーツスキン・判定ライン）</summary>
-    <div class="opts" style="margin-top:10px">
-      <label>ノーツの色 <select id="skColor"><option value="default">標準</option><option value="neon">ネオン</option><option value="pastel">パステル</option><option value="cb">色覚配慮</option><option value="mono">モノクロ</option></select></label>
-      <label>ノーツの形 <select id="skShape"><option value="square">四角</option><option value="round">角丸</option><option value="pill">丸（ピル）</option></select></label>
-      <label>ノーツの太さ <b id="skSizeV"></b><input id="skSize" type="range" min="70" max="150" step="5"></label>
-      <label>判定ラインの位置 <b id="skLineV"></b><input id="skLine" type="range" min="55" max="88" step="1"></label>
-      <label class="chk"><input id="skOutline" type="checkbox"> ノーツに縁取りをつける</label>
-      <button id="skReset" class="sub" type="button">表示設定を初期化</button>
-    </div>
-    <canvas id="skPrev" width="360" height="240" style="width:100%;max-width:300px;margin:10px auto 0;display:block;border:1px solid var(--line);border-radius:10px"></canvas>
-  </details>
   <label class="chk" id="edUseRow" hidden><input id="edUse" type="checkbox" checked> 編集済み譜面を使う</label>
   <button id="start" disabled>開始</button>
   <button id="edOpen" class="sub" type="button">譜面を編集</button>
+  <button id="netOpen" class="sub" type="button">オンライン譜面（みんなの譜面・ランキング）</button>
+  <button id="setOpen" class="sub" type="button">⚙ 設定（難易度・キー設定・表示など）</button>
   <p id="status" class="status">音源を読み込みしてるふり</p>
 </main>
 
@@ -291,6 +242,60 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
 
 <button id="pbtn" hidden aria-label="一時停止" title="一時停止"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button>
 <button id="fs" aria-label="全画面" title="全画面"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+<section id="setScreen" hidden>
+  <div id="ssTop"><button id="ssBack" class="sub" type="button">← 戻る</button><b>設定</b><span style="width:64px"></span></div>
+  <div class="opts">
+    <label>難易度
+      <select id="diff"><option value="easy">EASY</option><option value="normal" selected>NORMAL</option><option value="hard">HARD</option><option value="lunatic">LUNATIC、狂気的ー</option><option value="custom">CUSTOM（自分で設定）</option></select>
+    </label>
+    <label>レーン数
+      <select id="lanes"><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select>
+    </label>
+    <label>ノーツ速度 <b id="speedV"></b>
+      <input id="speed" type="range" min="0.8" max="5" step="0.1">
+    </label>
+    <label>曲の音量 <b id="volV"></b>
+      <input id="vol" type="range" min="0" max="100" step="5">
+    </label>
+    <label>タップ音<b id="sfxV"></b>
+      <input id="sfx" type="range" min="0" max="100" step="5">
+    </label>
+    <label class="chk"><input id="lite" type="checkbox"> 軽量モード</label>
+    <label class="chk"><input id="auto" type="checkbox"> オートプレイ</label>
+    <label class="chk"><input id="blines" type="checkbox"> 小節線・拍線を表示</label>
+    <label class="chk"><input id="fson" type="checkbox"> FAST/SLOW表示</label>
+    <button id="calBtn" class="sub" type="button">ズレ調整（拍に合わせてタップ）</button>
+    <label>判定オフセット <b id="offsetV"></b>
+      <input id="offset" type="range" min="-300" max="300" step="10">
+    </label>
+  </div>
+  <div id="cust" class="cust" hidden><div><b>カスタム難易度</b> <span class="pn">プリセットから読み込み:</span></div><div class="pre" id="custPre"></div><div id="custBody" class="opts"></div></div>
+  <details id="trkBox" hidden><summary>トラック選択 <span id="trkSum"></span></summary>
+    <p class="status" style="text-align:left">譜面にするパートを選べます。「自動」はメロディを判定して切り替えます。</p>
+    <div class="trkmode"><button id="trkAuto" class="sub on" type="button">自動</button><button id="trkMan" class="sub" type="button">手動</button></div>
+    <label class="chk" id="trkMergeRow" hidden><input id="trkMerge" type="checkbox"> 選んだトラックを同時に使う（混合）</label>
+    <div id="trkList"></div>
+  </details>
+  <details id="keyBox"><summary>キー設定（PC）</summary><p class="status">ボタンを押してから割り当てたいキーを押すと変更できます。奇数レーンは中央を Space にしています。</p><div id="keycfg" class="keycfg"></div></details>
+  <details id="dispBox"><summary>表示設定（ノーツスキン・判定ライン）</summary>
+    <div class="opts" style="margin-top:10px">
+      <label>ノーツの色 <select id="skColor"><option value="default">標準</option><option value="neon">ネオン</option><option value="pastel">パステル</option><option value="cb">色覚配慮</option><option value="mono">モノクロ</option></select></label>
+      <label>ノーツの形 <select id="skShape"><option value="square">四角</option><option value="round">角丸</option><option value="pill">丸（ピル）</option></select></label>
+      <label>ノーツの太さ <b id="skSizeV"></b><input id="skSize" type="range" min="70" max="150" step="5"></label>
+      <label>判定ラインの位置 <b id="skLineV"></b><input id="skLine" type="range" min="55" max="88" step="1"></label>
+      <label class="chk"><input id="skOutline" type="checkbox"> ノーツに縁取りをつける</label>
+      <button id="skReset" class="sub" type="button">表示設定を初期化</button>
+    </div>
+    <canvas id="skPrev" width="360" height="240" style="width:100%;max-width:300px;margin:10px auto 0;display:block;border:1px solid var(--line);border-radius:10px"></canvas>
+  </details>
+  <details id="pvBox"><summary>譜面プレビュー <span id="pvSum"></span></summary>
+    <div id="pvStat" class="rdetail" style="text-align:left;margin-top:8px"></div>
+    <canvas id="pvMini" width="720" height="140" style="width:100%;display:block;margin-top:8px;border:1px solid var(--line);border-radius:10px;touch-action:none"></canvas>
+    <p class="status" id="pvCur" style="margin-top:6px"></p>
+    <button id="pvOpen" class="sub" type="button">▶ プレビューを開く（再生）</button>
+  </details>
+  <button id="tutOpen" class="sub" type="button">遊び方・チュートリアル</button>
+</section>
 <section id="netScreen" hidden>
   <div id="nsTop"><button id="nsBack" class="sub" type="button">← 戻る</button><b>オンライン譜面</b><button id="nsRefresh" class="sub" type="button">更新</button></div>
   <p class="status" style="text-align:left">みんなが公開した譜面の一覧です。「プレイ」を押すだけでその譜面で遊べます（自分の編集済み譜面は上書きされません）。同じ譜面でのハイスコアランキングもあります。送受信されるのは譜面データだけで、MIDI本体は含まれません。</p>
@@ -303,9 +308,7 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
   <p id="nsStat" class="status" style="text-align:left"></p>
   <div id="nsList"></div>
   <button id="nsMore" class="sub" type="button" hidden>もっと見る</button>
-  <details id="nsSet"><summary>接続・ランキング設定・公開した譜面</summary>
-    <label>共有サーバーのURL<input id="netUrl" class="tin" type="url" placeholder="https://xxxx.workers.dev" autocomplete="off"></label>
-    <div class="netrow"><button id="netSave" class="sub" type="button">URLを保存</button><button id="netTest" class="sub" type="button">接続テスト</button></div>
+  <details id="nsSet"><summary>ランキング用の名前・公開した譜面</summary>
     <label>ランキングに表示する名前（空欄で匿名）<input id="nsName" class="tin" maxlength="24" autocomplete="off"></label>
     <div id="netMineBox" hidden style="margin-top:10px"><b style="font-size:14px">公開した譜面</b><div id="netMine"></div></div>
   </details>
@@ -1207,7 +1210,7 @@ box.hidden=!1}
 
 /* ===================== オンライン譜面共有 ===================== */
 var _NET_DEFAULT="https://midi-rhythm-charts.ym-gnbr-abc.workers.dev";   // 共有サーバーのURLを固定したい場合はここに書く（例: "https://midi-rhythm-charts.xxxx.workers.dev"）
-function _netBase(){var u=ut("mr_api");if(u==null||u==="")u=_NET_DEFAULT;return String(u).trim().replace(/\/+$/,"")}
+function _netBase(){return String(_NET_DEFAULT).replace(/\/+$/,"")}
 function _netCid(){var c=ut("mr_cid");if(!c||!/^[A-Za-z0-9_-]{8,64}$/.test(c)){var a=new Uint8Array(12);try{crypto.getRandomValues(a)}catch(e){for(var i=0;i<12;i++)a[i]=Math.floor(Math.random()*256)}c=Array.from(a,function(b){return("0"+b.toString(16)).slice(-2)}).join("");ht("mr_cid",c)}return c}
 async function _netReq(method,path,body,hdr){var base=_netBase();if(!base)throw new Error("共有サーバーのURLが未設定です");var ctl=new AbortController(),tm=setTimeout(function(){ctl.abort()},15000);
 try{var r=await fetch(base+path,{method:method,headers:Object.assign({"Content-Type":"application/json","X-Client":_netCid()},hdr||{}),body:body?JSON.stringify(body):void 0,signal:ctl.signal});var j=await r.json().catch(function(){return{}});if(!r.ok)throw new Error(j.error||("HTTP "+r.status));return j}
@@ -1232,11 +1235,9 @@ var h=_edHydrateOne(n);if(h.kind==="glide"&&h.pts&&h.pts.length>1)_edRebuildGlid
 out.sort(function(a,b){return a.t-b.t});return out}
 
 /* --- 設定UI --- */
-function _netSum(){K("netSum").textContent=_netBase()?"":"（接続先未設定）";K("netUrl").value=ut("mr_api")||_NET_DEFAULT;K("nsName").value=ut("mr_rank_name")||""}
+function _netSum(){K("nsName").value=ut("mr_rank_name")||""}
 function _netName(){return(ut("mr_rank_name")||ut("mr_np_author")||"").trim().slice(0,24)}
 function _netSafe(u){return typeof u==="string"&&u.length<=500&&/^https?:\/\//i.test(u)?u:""}
-K("netSave").onclick=function(){var u=K("netUrl").value.trim().replace(/\/+$/,"");if(u&&!/^https?:\/\//i.test(u)){Tt("http:// または https:// から始まるURLを入力してください");return}ht("mr_api",u);_netSum();Tt(u?"共有サーバーのURLを保存しました":"共有サーバーのURLを削除しました");if(!K("netScreen").hidden)_nsLoad(!0)};
-K("netTest").onclick=async function(){K("netSave").click();try{var r=await _netReq("GET","/api/health");Tt(r&&r.ok?"接続できました":"応答が想定と違います")}catch(e){Tt("接続できませんでした: "+e.message)}};
 K("nsName").onchange=function(){ht("mr_rank_name",K("nsName").value.trim().slice(0,24))};
 
 /* --- 一覧画面（全公開譜面・並び替え・検索） --- */
@@ -1244,7 +1245,7 @@ function _netMine(){return _mrJ("mr_pub",[])}
 var _NS_SORTS=["new","popular","plays","updated","title"];
 var _ns={sort:_NS_SORTS.indexOf(ut("mr_ns_sort"))>=0?ut("mr_ns_sort"):"new",q:"",lanes:"",diff:"",offset:0,items:[],busy:!1,seq:0};
 function _nsSyncCtl(){K("nsSort").value=_ns.sort;K("nsLanes").value=_ns.lanes;K("nsDiff").value=_ns.diff;K("nsQ").value=_ns.q}
-function _nsOpen(){K("netScreen").hidden=!1;_nsSyncCtl();if(!_netBase()){K("nsSet").open=!0;K("nsList").textContent="";K("nsMore").hidden=!0;K("nsStat").textContent="共有サーバーのURLを設定すると、みんなの譜面が表示されます。";return}_nsLoad(!0)}
+function _nsOpen(){K("netScreen").hidden=!1;_nsSyncCtl();_nsLoad(!0)}
 function _nsClose(){K("netScreen").hidden=!0}
 async function _nsLoad(reset){
 if(!reset&&_ns.busy)return;
@@ -1353,7 +1354,7 @@ _edAfterGame=function(){var cur=_netCur,pr=_prActive,tu=_tutActive,er=!!_edRetur
 
 /* --- ランキング送信（リザルト画面） --- */
 function _netResult(quit,rk){var box=K("rNetBox");box.hidden=!0;K("rNetList").textContent="";
-if(!_netCur||quit||pe||_edPartial||_tutActive||!_netBase())return;
+if(!_netCur||quit||pe||_edPartial||_tutActive)return;
 _netLast={score:Math.round(On()),combo:Pn,rank:rk||"",label:K("rLabel").textContent||""};
 box.hidden=!1;K("rNetMsg").textContent="ランキングに送信中…";_netSubmit()}
 async function _netSubmit(){var cur=_netCur,l=_netLast;if(!cur||!l)return;var msg=K("rNetMsg"),list=K("rNetList");
@@ -1376,7 +1377,7 @@ _nsBtn(bt,"開く",function(){_ndOpen({id:p.id,title:p.title,name:p.name,author:
 _nsBtn(bt,"削除",function(){_netDelete(p.id)});row.append(b,s,bt);box.append(row)})}
 
 /* --- 公開（エディタの「⋯」から） --- */
-function _netOpenPub(){if(!_netBase()){Tt("共有サーバーのURLが未設定です（メニューの「オンライン譜面」で設定してください）");return}if(!_edNotes.length){Tt("ノーツがありません");return}
+function _netOpenPub(){if(!_edNotes.length){Tt("ノーツがありません");return}
 var prev=_netMine().filter(function(x){return x.key===_edKey()}).pop();
 K("npTitle").value=_edSongName||"";K("npName").value=ut("mr_np_name")||"";K("npAuthor").value=ut("mr_np_author")||"";K("npUrl").value=prev&&prev.url||"";K("npAgree").checked=!1;K("npRes").hidden=!0;K("npForm").hidden=!1;K("netPubDlg").hidden=!1}
 async function _netDoPub(){var title=K("npTitle").value.trim(),name=K("npName").value.trim(),author=K("npAuthor").value.trim(),url=K("npUrl").value.trim();
@@ -1403,6 +1404,19 @@ K("nsLanes").onchange=function(){_ns.lanes=this.value;_nsLoad(!0)};
 K("nsDiff").onchange=function(){_ns.diff=this.value;_nsLoad(!0)};
 var _nsT=0;K("nsQ").oninput=function(){var v=this.value.trim();clearTimeout(_nsT);_nsT=setTimeout(function(){if(v===_ns.q)return;_ns.q=v;_nsLoad(!0)},400)};
 _netSum();_netMineRender();
+
+/* --- 設定画面（キー設定・カスタム難易度・トラック・ズレ調整・表示設定など） --- */
+var _setBack=!1;
+function _setCheck(){if(_setBack&&!K("menu").hidden&&K("tut").hidden&&K("calib").hidden){_setBack=!1;K("setScreen").hidden=!1}}
+K("setOpen").onclick=function(){K("setScreen").hidden=!1;K("setScreen").scrollTop=0};
+K("ssBack").onclick=function(){K("setScreen").hidden=!0;_setBack=!1};
+["calBtn","pvOpen","tutOpen"].forEach(function(id){K(id).addEventListener("click",function(){
+if(K("setScreen").hidden)return;
+if(id==="pvOpen"&&!xt)return;
+if(id==="calBtn"&&!(window.AudioContext||window.webkitAudioContext))return;
+_setBack=!0;K("setScreen").hidden=!0;setTimeout(_setCheck,700);setTimeout(_setCheck,2500)},!0)});
+var _setMO=new MutationObserver(_setCheck);
+["menu","tut","calib"].forEach(function(id){_setMO.observe(K(id),{attributes:!0,attributeFilter:["hidden"]})});
 
 })();
 </script>
