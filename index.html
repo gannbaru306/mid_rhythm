@@ -1206,7 +1206,7 @@ pick.forEach(function(c){var t0=_prBar(c.a,-1),t1=_prBar(c.a+LEN,1);if(t1-t0<4)t
 box.hidden=!1}
 
 /* ===================== オンライン譜面共有 ===================== */
-var _NET_DEFAULT="";   // 共有サーバーのURLを固定したい場合はここに書く（例: "https://midi-rhythm-charts.xxxx.workers.dev"）
+var _NET_DEFAULT="https://midi-rhythm-charts.ym-gnbr-abc.workers.dev";   // 共有サーバーのURLを固定したい場合はここに書く（例: "https://midi-rhythm-charts.xxxx.workers.dev"）
 function _netBase(){var u=ut("mr_api");if(u==null||u==="")u=_NET_DEFAULT;return String(u).trim().replace(/\/+$/,"")}
 function _netCid(){var c=ut("mr_cid");if(!c||!/^[A-Za-z0-9_-]{8,64}$/.test(c)){var a=new Uint8Array(12);try{crypto.getRandomValues(a)}catch(e){for(var i=0;i<12;i++)a[i]=Math.floor(Math.random()*256)}c=Array.from(a,function(b){return("0"+b.toString(16)).slice(-2)}).join("");ht("mr_cid",c)}return c}
 async function _netReq(method,path,body,hdr){var base=_netBase();if(!base)throw new Error("共有サーバーのURLが未設定です");var ctl=new AbortController(),tm=setTimeout(function(){ctl.abort()},15000);
