@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <title>MIDI Rhythm</title>
 <style>
-:root { --bg: #0d0f1a; --line: #2a2f4a; --fg: #e8ecff; --mute: #9aa2c8; --tap: #7be0d0; --hold: #f0b45a; }
+:root { --bg: #0d0f1a; --line: #2a2f4a; --fg: #f4f6ff; --mute: #c5cbe8; --tap: #7be0d0; --hold: #f0b45a; }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body, button, label, select, input { touch-action: manipulation; } /* ダブルタップ拡大を無効にする */
 #menu, #result, #pause { touch-action: pan-y; }
@@ -203,7 +203,7 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
 <main id="menu">
   <h1>MIDI Rhythm</h1>
   <p class="lead">MIDIファイルを選ぶと、譜面を自動で作ります。</p>
-  <div id="welcome" class="welcome" hidden><b>はじめまして！</b><span>まずは遊び方を見るか、デモ曲で試してみましょう。</span><div class="wbtns"><button id="wTut" type="button">遊び方を見る</button><button id="wDemo" class="sub" type="button">デモ曲で遊ぶ</button><button id="wClose" class="sub" type="button">閉じる</button></div></div>
+  <div id="welcome" class="welcome" hidden><b>こんにちはー</b><span>まずは遊び方を見るか、デモ曲で試してみましょう。</span><div class="wbtns"><button id="wTut" type="button">遊び方を見る</button><button id="wDemo" class="sub" type="button">デモ曲で遊ぶ</button><button id="wClose" class="sub" type="button">閉じる</button></div></div>
   <label class="file">MIDIファイルを選択<input id="midi" type="file" accept=".mid,.midi,audio/midi,audio/x-midi"></label>
   <p id="fname" class="fname">未選択</p>
   <p id="hsInfo" class="fname" hidden></p>
@@ -227,7 +227,7 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
   <div id="rNetBox" hidden><p id="rNetMsg" class="rdetail" style="margin-bottom:6px"></p><div id="rNetList"></div><button id="rNetName" class="sub" type="button" style="padding:8px 12px;font-size:13px;margin-top:6px">ランキング用の名前を変更</button></div>
   <div id="rHistBox" hidden><div id="rHist" class="hist"></div><div class="histl"><span>FAST −150ms</span><span>0</span><span>+150ms SLOW</span></div></div>
   <p id="rAna" class="rdetail"></p>
-  <div id="rPracBox" hidden><p class="rdetail" style="margin-bottom:6px">■ 区間練習（くり返し）</p><div class="prrate">速度 <select id="rPracRate"><option value="0.5">×0.5</option><option value="0.7" selected>×0.7</option><option value="0.85">×0.85</option><option value="1">×1.0</option></select></div><div id="rPracList"></div></div>
+  <div id="rPracBox" hidden><p class="rdetail" style="margin-bottom:6px">■ 区間練習</p><div class="prrate">速度 <select id="rPracRate"><option value="0.5">×0.5</option><option value="0.7" selected>×0.7</option><option value="0.85">×0.85</option><option value="1">×1.0</option></select></div><div id="rPracList"></div></div>
   <button id="rAdj" class="sub" hidden></button>
   <button id="again">メニューに戻る</button>
 </section>
@@ -246,7 +246,7 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
   <div id="ssTop"><button id="ssBack" class="sub" type="button">← 戻る</button><b>設定</b><span style="width:64px"></span></div>
   <div class="opts">
     <label>難易度
-      <select id="diff"><option value="easy">EASY</option><option value="normal" selected>NORMAL</option><option value="hard">HARD</option><option value="lunatic">LUNATIC、狂気的ー</option><option value="custom">CUSTOM（自分で設定）</option></select>
+      <select id="diff"><option value="easy">EASY</option><option value="normal" selected>NORMAL</option><option value="hard">HARD</option><option value="lunatic">LUNATIC、狂気的ー</option><option value="custom">CUSTOM</option></select>
     </label>
     <label>レーン数
       <select id="lanes"><option>3</option><option selected>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select>
@@ -264,7 +264,7 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
     <label class="chk"><input id="auto" type="checkbox"> オートプレイ</label>
     <label class="chk"><input id="blines" type="checkbox"> 小節線・拍線を表示</label>
     <label class="chk"><input id="fson" type="checkbox"> FAST/SLOW表示</label>
-    <button id="calBtn" class="sub" type="button">ズレ調整（拍に合わせてタップ）</button>
+    <button id="calBtn" class="sub" type="button">ズレ調整</button>
     <label>判定オフセット <b id="offsetV"></b>
       <input id="offset" type="range" min="-300" max="300" step="10">
     </label>
@@ -276,11 +276,11 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
     <label class="chk" id="trkMergeRow" hidden><input id="trkMerge" type="checkbox"> 選んだトラックを同時に使う（混合）</label>
     <div id="trkList"></div>
   </details>
-  <details id="keyBox"><summary>キー設定（PC）</summary><p class="status">ボタンを押してから割り当てたいキーを押すと変更できます。奇数レーンは中央を Space にしています。</p><div id="keycfg" class="keycfg"></div></details>
-  <details id="dispBox"><summary>表示設定（ノーツスキン・判定ライン）</summary>
+  <details id="keyBox"><summary>キー設定</summary><p class="status">ボタンを押してから割り当てたいキーを押すと変更できます。奇数レーンは中央を Space にしています。</p><div id="keycfg" class="keycfg"></div></details>
+  <details id="dispBox"><summary>表示設定</summary>
     <div class="opts" style="margin-top:10px">
       <label>ノーツの色 <select id="skColor"><option value="default">標準</option><option value="neon">ネオン</option><option value="pastel">パステル</option><option value="cb">色覚配慮</option><option value="mono">モノクロ</option></select></label>
-      <label>ノーツの形 <select id="skShape"><option value="square">四角</option><option value="round">角丸</option><option value="pill">丸（ピル）</option></select></label>
+      <label>ノーツの形 <select id="skShape"><option value="square">四角</option><option value="round">角丸</option><option value="pill">丸</option></select></label>
       <label>ノーツの太さ <b id="skSizeV"></b><input id="skSize" type="range" min="70" max="150" step="5"></label>
       <label>判定ラインの位置 <b id="skLineV"></b><input id="skLine" type="range" min="55" max="88" step="1"></label>
       <label class="chk"><input id="skOutline" type="checkbox"> ノーツに縁取りをつける</label>
@@ -292,16 +292,16 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
     <div id="pvStat" class="rdetail" style="text-align:left;margin-top:8px"></div>
     <canvas id="pvMini" width="720" height="140" style="width:100%;display:block;margin-top:8px;border:1px solid var(--line);border-radius:10px;touch-action:none"></canvas>
     <p class="status" id="pvCur" style="margin-top:6px"></p>
-    <button id="pvOpen" class="sub" type="button">▶ プレビューを開く（再生）</button>
+    <button id="pvOpen" class="sub" type="button">▶ プレビュー再生</button>
   </details>
   <button id="tutOpen" class="sub" type="button">遊び方・チュートリアル</button>
 </section>
 <section id="netScreen" hidden>
   <div id="nsTop"><button id="nsBack" class="sub" type="button">← 戻る</button><b>オンライン譜面</b><button id="nsRefresh" class="sub" type="button">更新</button></div>
-  <p class="status" style="text-align:left">みんなが公開した譜面の一覧です。「プレイ」を押すだけでその譜面で遊べます（自分の編集済み譜面は上書きされません）。同じ譜面でのハイスコアランキングもあります。送受信されるのは譜面データだけで、MIDI本体は含まれません。</p>
+  <p class="status" style="text-align:left">みんなが公開した譜面の一覧です。「プレイ」を押すとその譜面で遊べます。自分の編集済み譜面は上書きされません。送受信するのは譜面データだけで、MIDI本体は含みません。</p>
   <div id="nsBar">
     <input id="nsQ" class="tin" type="search" placeholder="曲名・譜面名・作者で検索" maxlength="40" autocomplete="off">
-    <select id="nsSort"><option value="new">新着順</option><option value="popular">人気順（♥）</option><option value="plays">プレイ数順</option><option value="updated">更新順</option><option value="title">曲名順</option></select>
+    <select id="nsSort"><option value="new">新着順</option><option value="popular">人気順</option><option value="plays">プレイ数順</option><option value="updated">更新順</option><option value="title">曲名順</option></select>
     <select id="nsLanes"><option value="">レーン: すべて</option><option value="3">3レーン</option><option value="4">4レーン</option><option value="5">5レーン</option><option value="6">6レーン</option><option value="7">7レーン</option><option value="8">8レーン</option></select>
     <select id="nsDiff"><option value="">難易度: すべて</option><option value="easy">EASY</option><option value="normal">NORMAL</option><option value="hard">HARD</option><option value="lunatic">LUNATIC</option><option value="custom">CUSTOM</option></select>
   </div>
@@ -309,7 +309,7 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
   <div id="nsList"></div>
   <button id="nsMore" class="sub" type="button" hidden>もっと見る</button>
   <details id="nsSet"><summary>ランキング用の名前・公開した譜面</summary>
-    <label>ランキングに表示する名前（空欄で匿名）<input id="nsName" class="tin" maxlength="24" autocomplete="off"></label>
+    <label>ランキングの表示名<input id="nsName" class="tin" maxlength="24" placeholder="空欄で匿名" autocomplete="off"></label>
     <div id="netMineBox" hidden style="margin-top:10px"><b style="font-size:14px">公開した譜面</b><div id="netMine"></div></div>
   </details>
 </section>
@@ -326,10 +326,10 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
   <h3 style="margin:0 0 8px">譜面をオンラインで共有</h3>
   <p class="status" style="text-align:left">譜面データだけを公開します。MIDIファイルは送信されません。相手は同じ曲のMIDIを用意すると、この譜面で遊べます。下の入手先URLを入れておくと、MIDIを持っていない人にリンクが表示されます。</p>
   <div id="npForm">
-    <label>曲名（相手がMIDIを探す目印）<input id="npTitle" maxlength="60" autocomplete="off"></label>
+    <label>曲名<input id="npTitle" maxlength="60" placeholder="相手がMIDIを探す目印" autocomplete="off"></label>
     <label>譜面の名前<input id="npName" maxlength="40" placeholder="例: 初心者向け" autocomplete="off"></label>
-    <label>作者名（空欄で匿名）<input id="npAuthor" maxlength="24" autocomplete="off"></label>
-    <label>MIDIの入手先URL（任意・公式の配布ページなど）<input id="npUrl" class="tin" type="url" maxlength="500" placeholder="https://" inputmode="url" autocomplete="off"></label>
+    <label>作者名<input id="npAuthor" maxlength="24" placeholder="空欄で匿名" autocomplete="off"></label>
+    <label>MIDIの入手先URL<input id="npUrl" class="tin" type="url" maxlength="500" placeholder="任意。公式の配布ページなど https://..." inputmode="url" autocomplete="off"></label>
     <label class="chk"><input id="npAgree" type="checkbox"> 上の名前と譜面が誰でも見られることに同意します</label>
     <div class="netrow"><button id="npGo" type="button">公開する</button><button id="npCancel" class="sub" type="button">キャンセル</button></div>
   </div>
@@ -354,8 +354,8 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
   </div>
   <div id="edTools"></div>
   <div id="edMoreMenu" hidden>
-    <button data-act="export">書き出し（JSON）</button>
-    <button data-act="import">読み込み（JSON）</button>
+    <button data-act="export">JSON書き出し</button>
+    <button data-act="import">JSON読み込み</button>
     <button data-act="share">オンラインで共有…</button>
     <button data-act="reset">自動生成の譜面に戻す</button>
     <button data-act="fs">全画面</button>
@@ -387,7 +387,7 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
     <p><b>移動</b>　「選択」ツールで空白をドラッグ、右端のバー、またはPCではマウスホイール・↑↓・PageUp/Down。2本指ドラッグでもどのツールでも移動できます。</p>
     <p><b>ロング / 連打 / トリル</b>　ツールを選び、始点から終点までドラッグ。タップだけなら1拍分で置かれます。置いた後は「長さ −／＋」や、選択して端の白い丸をドラッグで調整できます。</p>
     <p><b>なぞり</b>　「なぞり」ツールで通過点を順にタップ（下から上へ時刻が進む向き）し、「確定」を押します。2レーン以上にまたがる必要があります。</p>
-    <p><b>選択と編集</b>　「選択」でノーツをタップ。下のパネルでロング/フリック/リンク化、時間・レーンの移動、複製、コピー、左右反転、削除ができます。「範囲」ツールで複数選択できます（PCは Shift+クリックでも追加）。</p>
+    <p><b>選択と編集</b>　「選択」でノーツをタップ。下のパネルでロング/フリック/リンク化、時間・レーンの移動、複製、コピー、左右反転、削除ができます。コピーしたあと貼り付けたい位置までスクロールすると、パネルの「貼り付け」で判定ラインの位置に貼り付けられます。「範囲」ツールで複数選択できます（PCは Shift+クリックでも追加）。</p>
     <p><b>グリッド</b>　1/4〜1/32のスナップを選べます。数字は小節番号です。</p>
     <p><b>テスト</b>　「▶ここから」で現在位置から、「⏮最初から」で最初から遊べます。終了するとこの画面に戻ります。編集は自動保存されます。</p>
     <p><b>PCのキー</b>　1〜0・E: ツール切替 / Space: テスト / Delete: 削除 / Ctrl+Z,Y: 取消・やり直し / Ctrl+C,V,D,A: コピー・貼り付け・複製・全選択 / 矢印: 選択の移動</p>
@@ -397,7 +397,7 @@ details summary{cursor:pointer;color:var(--fg);font-weight:600}
 </section>
 <section id="calib" hidden>
   <p class="rscore" style="font-size:28px">ズレ調整</p>
-  <p class="status" id="calGuide">クリック音に合わせて、下のエリアをタップ（キーでも可）してください。16回で自動計算します。</p>
+  <p class="status" id="calGuide">クリック音に合わせて、下のエリアをタップするか、キーを押してください。16回で自動計算します。</p>
   <div id="calTap"><div id="calDot"></div></div>
   <p class="status" id="calInfo">準備中…</p>
   <div id="calRes" hidden><p class="rdetail" id="calTxt"></p><button id="calApply" type="button">この値を適用</button></div>
@@ -760,7 +760,7 @@ if(n.kind==="bar"){S.strokeRect(2,Math.min(y1,y2)-11,ZA-4,Math.abs(y2-y1)+22)}
 else if(n.kind==="glide"&&n.pts){var ls=n.pts.map(function(p){return p.lane}),lo=Math.min.apply(null,ls),hi=Math.max.apply(null,ls);S.strokeRect(lo*lw+2,Math.min(y1,y2)-11,(hi-lo+1)*lw-4,Math.abs(y2-y1)+22)}
 else{var l0=n.lane,l1=n.lane2!==undefined?n.lane2:n.lane,a=Math.min(l0,l1),z=Math.max(l0,l1);S.strokeRect(a*lw+2,Math.min(y1,y2)-11,(z-a+1)*lw-4,Math.abs(y2-y1)+22)}
 if(_edSel.length===1&&_edHasHandle(n)){var hx=(n.lane+(n.lane2!==undefined&&n.kind==="trill"?1:.5))*lw;if(n.kind==="trill")hx=(n.lane+1)*lw;S.fillStyle="#fff";S.beginPath();S.arc(hx,y2,9,0,7);S.fill();S.fillStyle="#201600";S.fillRect(hx-4,y2-1.5,8,3)}}
-if(_edDrag&&_edDrag.mode==="box"){var d=_edDrag;S.strokeStyle="#7be0d0";S.lineWidth=1.5;S.setLineDash([6,4]);S.strokeRect(Math.min(d.x0,d.x1)-X0,Math.min(d.y0,d.y1),Math.abs(d.x1-d.x0),Math.abs(d.y1-d.y0));S.setLineDash([]);S.fillStyle="rgba(123,224,208,.1)";S.fillRect(Math.min(d.x0,d.x1)-X0,Math.min(d.y0,d.y1),Math.abs(d.x1-d.x0),Math.abs(d.y1-d.y0))}
+if(_edDrag&&_edDrag.mode==="box"){var d=_edDrag;S.save();S.beginPath();S.rect(0,0,ZA,ie);S.clip();S.strokeStyle="#7be0d0";S.lineWidth=1.5;S.setLineDash([6,4]);S.strokeRect(Math.min(d.x0,d.x1)-X0,Math.min(d.y0,d.y1),Math.abs(d.x1-d.x0),Math.abs(d.y1-d.y0));S.setLineDash([]);S.fillStyle="rgba(123,224,208,.1)";S.fillRect(Math.min(d.x0,d.x1)-X0,Math.min(d.y0,d.y1),Math.abs(d.x1-d.x0),Math.abs(d.y1-d.y0));S.restore()}
 S.textAlign="right";S.fillStyle="rgba(255,226,122,.9)";WA("700 12px sans-serif");S.fillText(_edViewT.toFixed(2)+"s  "+_edPos(_edViewT),ZA-6,_edLineY()-8)}catch(e){}}
 function _edSeekDraw(){var cv=K("edSeekCv");if(!cv||!cv.getContext)return;var dpr=Math.min(2,devicePixelRatio||1),w=cv.clientWidth||30,h=cv.clientHeight||200;if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);_edDens=null}
 var c=cv.getContext("2d");c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,h);c.fillStyle="rgba(22,26,46,.85)";c.fillRect(0,0,w,h);var dur=Math.max(1,_edDur),nb=Math.max(10,Math.floor(h/2));
@@ -789,9 +789,9 @@ function _edNudge(dt,dl){if(!_edSel.length)return;var refs=_edSel.slice(),origs=
 var base=refs[0];if(dt){var nt=_edSnap(base.t+dt);dt=nt-base.t;if(Math.abs(dt)<1e-6)dt=_edStep(base.t)*Math.sign(dt)}
 if(_edTryShift(origs,refs,dt,dl)){_edUndoPush(snap);_edAfterEdit()}else Tt("そこには動かせません")}
 function _edMirror(){if(!_edSel.length)return;var L=_edL(),snap=_edSnapshot();_edSel.forEach(function(n){if(n.kind==="bar")return;n.lane=L-1-n.lane;if(n.lane2!==undefined)n.lane2=L-1-n.lane2;if(n.pts){n.pts.forEach(function(p){p.lane=L-1-p.lane});_edRebuildGlide(n)}});_edUndoPush(snap);_edAfterEdit()}
-function _edCopy(){if(!_edSel.length)return;_edClip=_edSel.map(_edStripOne);Tt(_edClip.length+"個コピーしました")}
+function _edCopy(){if(!_edSel.length)return;_edClip=_edSel.map(_edStripOne);Tt(_edClip.length+"個コピーしました。貼り付けたい位置までスクロールして「貼り付け」を押してください");_edRenderInsp()}
 function _edPasteList(list,dt){var cands=list.map(function(o){return _edShifted(o,dt,0)});for(var c of cands){if(!_edInBounds(c)||_edClash(c,null))return!1}_edUndoPush();var made=cands.map(function(c){return _edHydrateOne(c)});made.forEach(function(n){if(n.kind==="glide")_edRebuildGlide(n);_edNotes.push(n)});_edSel=made;_edAfterEdit();return!0}
-function _edPaste(){if(!_edClip.length){Tt("コピーしたノーツがありません");return}var base=Math.min.apply(null,_edClip.map(function(o){return o.t})),dt=_edSnap(_edViewT)-base;if(!_edPasteList(_edClip,dt))Tt("貼り付け先に既存ノーツがあります")}
+function _edPaste(){if(!_edClip.length){Tt("コピーしたノーツがありません");return}var base=Math.min.apply(null,_edClip.map(function(o){return o.t})),dt=_edSnap(_edViewT)-base;if(!_edPasteList(_edClip,dt))Tt("貼り付け先に既存ノーツがあります");else Tt("貼り付けました")}
 function _edDup(){if(!_edSel.length)return;var list=_edSel.map(_edStripOne),maxT=Math.max.apply(null,list.map(function(o){return o.end})),minT=Math.min.apply(null,list.map(function(o){return o.t})),st=_edStep(maxT);for(var k=1;k<=16;k++){var dt=Math.max(st,maxT-minT+.001)*(k===1?1:k);if(_edPasteList(list,k===1?Math.max(st,maxT-minT+st):dt))return}Tt("複製先に空きがありません")}
 function _edToggle(p){var n=_edSel[0];if(!n)return;var snap=_edSnapshot();
 if(p==="long"){if(n.long){n.long=!1;n.end=n.t;n.flickEnd=!1}else{n.long=!0;n.flick=!1;n.link=!1;delete n.lane2;var e=_edMaxEnd(n,n.t+Math.max(.5,_edBeatLen(n.t)));if(e-n.t<.3){n.long=!1;Tt("後ろにスペースがなく、ロングにできません");return}n.end=e}}
@@ -808,7 +808,7 @@ function _edReqAdj(d){var n=_edSel[0];if(!n||!n.count)return;var snap=_edSnapsho
 function _edDetail(n){var kind=n.kind==="roll"?"連打":n.kind==="trill"?"トリル":n.kind==="glide"?"なぞり":n.kind==="bar"?"バー":n.long?"ロング":n.flick?"フリック":n.link?"リンク":"タップ",p=[kind,n.t.toFixed(2)+"s",_edPos(n.t)];if(n.kind!=="bar")p.push("レーン"+(n.lane+1)+(n.lane2!==undefined&&(n.link||n.kind==="trill")?"+"+(n.lane2+1):""));if(_edHasHandle(n))p.push("長さ "+(n.end-n.t).toFixed(2)+"s");if(n.kind==="glide")p.push("通過"+n.pts.length+"点"+(n.flickEnd?" 終端フリック":""));if(n.count)p.push("回数 "+n.req+"/"+n.count);if(n.flickEnd&&n.long)p.push("終端フリック");return p.join(" ｜ ")}
 function _edInfo(){var el=K("edInfo");if(!el)return;if(_edPreview){el.textContent=_pvStatText;return}if(_edGlide){el.textContent="なぞり作成中: 通過点を順にタップ（"+_edGlide.pts.length+"点）→「確定」";return}el.textContent=_edSel.length===1?_edDetail(_edSel[0]):_edSel.length>1?_edSel.length+"個を選択中":_edNotes.length+"ノーツ ／ "+_edDur.toFixed(1)+"秒 ／ "+_edToolHint()}
 function _edToolHint(){return{select:"ノーツをタップして選択。空白ドラッグで時間移動",range:"ドラッグで範囲選択",tap:"タップで配置",long:"ドラッグで長さを決めて配置",flick:"タップで配置",link:"タップで配置（隣レーンと同時）",bar:"タップで配置",roll:"ドラッグで長さを決めて配置",trill:"ドラッグで長さを決めて配置",glide:"通過点を順にタップ→確定",erase:"タップで削除"}[_edTool]||""}
-function _edRenderInsp(){var box=K("edInsp");if(!box)return;box.textContent="";var sel=_edSel;if(!sel.length)return;
+function _edRenderInsp(){var box=K("edInsp");if(!box)return;box.textContent="";var sel=_edSel;if(!sel.length){if(_edClip.length)btn("貼り付け",_edPaste);return}
 function btn(label,fn,on){var b=document.createElement("button");b.textContent=label;if(on)b.className="on";b.onclick=fn;box.append(b)}
 if(sel.length===1){var n=sel[0];
 if(!n.kind){btn("ロング",function(){_edToggle("long")},n.long);btn("フリック",function(){_edToggle("flick")},n.flick);btn("リンク",function(){_edToggle("link")},n.link);if(n.long)btn("終端フリック",function(){_edToggle("flickEnd")},n.flickEnd);btn("強弱:"+["弱","普","強"][n.dyn===undefined?1:n.dyn],function(){_edCycleDyn(n)})}
@@ -816,7 +816,7 @@ if(_edHasHandle(n)){btn("長さ −",function(){_edLen(-1)});btn("長さ ＋",fu
 if(n.count){btn("回数 −",function(){_edReqAdj(-1)});btn("回数 ＋",function(){_edReqAdj(1)})}
 if(n.kind==="glide")btn("終端フリック",function(){_edToggle("flickEnd")},n.flickEnd)}
 btn("↑ 後へ",function(){_edNudge(1,0)});btn("↓ 前へ",function(){_edNudge(-1,0)});btn("← レーン",function(){_edNudge(0,-1)});btn("→ レーン",function(){_edNudge(0,1)});
-btn("複製",_edDup);btn("コピー",_edCopy);if(sel.length>1||sel[0].kind!=="bar")btn("左右反転",_edMirror);btn("削除",_edDelSel);btn("選択解除",function(){_edSel=[];_edRenderAll()})}
+btn("複製",_edDup);btn("コピー",_edCopy);if(_edClip.length)btn("貼り付け",_edPaste);if(sel.length>1||sel[0].kind!=="bar")btn("左右反転",_edMirror);btn("削除",_edDelSel);btn("選択解除",function(){_edSel=[];_edRenderAll()})}
 function _edGlideUI(){var bar=K("edGlideBar");bar.hidden=!_edGlide;if(_edGlide)K("edGlideOk").textContent="確定（"+_edGlide.pts.length+"点）"}
 function _edGlideCancel(){_edGlide=null;_edHover=null;_edGlideUI();_edRenderAll()}
 function _edGlideConfirm(){var g=_edGlide;if(!g||g.pts.length<2){Tt("通過点を2つ以上タップしてください");return}var lanes=new Set(g.pts.map(function(p){return p.lane}));if(lanes.size<2){Tt("2レーン以上にまたがる必要があります");return}if(g.pts[g.pts.length-1].t-g.pts[0].t<.25){Tt("もう少し長く（0.25秒以上）してください");return}
@@ -909,7 +909,7 @@ function end(e){if(!_edOpenFlag)return;var p=_edXY(e);_edPtrs.delete(e.pointerId
 if(_edPan){if(_edPtrs.size===0){_edPan=null;_edInfo();_edReq()}else _edPanStart();return}
 if(e.type==="pointercancel"){_edCancelDrag();_edReq();return}
 _edUp(e,p)}
-cat.addEventListener("pointerup",end);cat.addEventListener("pointercancel",end);
+cat.addEventListener("pointerup",end);cat.addEventListener("pointercancel",end);cat.addEventListener("lostpointercapture",function(e){if(!_edOpenFlag||!_edPtrs.has(e.pointerId))return;_edPtrs.delete(e.pointerId);if(_edPan){if(_edPtrs.size===0){_edPan=null;_edInfo()}_edReq();return}_edCancelDrag();_edRenderAll()});
 cat.addEventListener("pointerleave",function(e){if(e.pointerType==="mouse"&&!_edDrag&&_edHover){_edHover=null;_edReq()}});
 cat.addEventListener("wheel",function(e){e.preventDefault();if(e.ctrlKey||e.metaKey){_edZoom(e.deltaY>0?-1:1);return}var st=_edStep(_edViewT)*(_edSnapDiv?_edSnapDiv:2);_edViewT=_edClampT(_edViewT+(e.deltaY>0?-1:1)*-st);_edReq()},{passive:!1});
 cat.addEventListener("contextmenu",function(e){e.preventDefault()});
@@ -1257,7 +1257,7 @@ if(_ns.q)p.push("q="+encodeURIComponent(_ns.q));if(_ns.lanes)p.push("lanes="+_ns
 var r=await _netReq("GET","/api/recent?"+p.join("&"));
 if(my!==_ns.seq)return;
 var items=r.items||[];_ns.offset+=items.length;_ns.items=_ns.items.concat(items);_nsRender(items);
-K("nsStat").textContent=_ns.items.length?_ns.items.length+"件"+(r.more?"（続きあり）":""):"該当する譜面はまだありません。";
+K("nsStat").textContent=_ns.items.length?_ns.items.length+"件"+(r.more?"以上":""):"該当する譜面はまだありません。";
 K("nsMore").hidden=!r.more}
 catch(e){if(my===_ns.seq)K("nsStat").textContent="読み込めませんでした: "+e.message}
 finally{if(my===_ns.seq)_ns.busy=!1}}
@@ -1301,8 +1301,8 @@ function _ndShowMidi(full,reason,sim){var box=K("ndMidi");box.textContent="";
 var p=document.createElement("p");p.className="status";p.style.textAlign="left";
 if(reason==="checking")p.textContent="読み込み中のMIDIと保存した曲から、この譜面の曲を探しています…";
 else if(reason==="ok")p.textContent="同じ曲のMIDIを確認しました。";
-else if(reason==="mismatch")p.textContent="選んだMIDIは、この譜面の曲と一致しません"+(sim!=null?"（一致度 "+Math.round(sim*100)+"%）":"")+"。同じ曲のMIDIを用意してください。";
-else p.textContent="この譜面で遊ぶには、同じ曲のMIDIが必要です（読み込み中のMIDI・保存した曲には見つかりませんでした）。MIDIを手に入れたら、下のボタンで読み込むとそのまま遊べます。";
+else if(reason==="mismatch")p.textContent="選んだMIDIは、この譜面の曲と一致しません。"+(sim!=null?"一致度 "+Math.round(sim*100)+"%。":"")+"同じ曲のMIDIを用意してください。";
+else p.textContent="この譜面で遊ぶには、同じ曲のMIDIが必要です。読み込み中のMIDIにも保存した曲にも見つかりませんでした。MIDIを手に入れたら、下のボタンで読み込むとそのまま遊べます。";
 box.append(p);
 if(reason==="none"||reason==="mismatch"){var u=_netSafe(full&&full.url);
 if(u){var a=document.createElement("a");a.className="nlink";a.href=u;a.target="_blank";a.rel="noopener noreferrer nofollow";a.textContent="MIDIはこちらから入手できます";box.append(a);
@@ -1360,15 +1360,15 @@ box.hidden=!1;K("rNetMsg").textContent="ランキングに送信中…";_netSubm
 async function _netSubmit(){var cur=_netCur,l=_netLast;if(!cur||!l)return;var msg=K("rNetMsg"),list=K("rNetList");
 try{var r=await _netReq("POST","/api/charts/"+encodeURIComponent(cur.id)+"/scores",{score:l.score,combo:l.combo,rank:l.rank,label:l.label==="SCORE"?"":l.label,name:_netName()});
 if(_netCur!==cur)return;
-msg.textContent=(r.improved?"ランキング更新！ ":"")+"あなたの自己ベスト "+Kt(r.best?r.best.score:l.score)+"（"+(r.pos||"-")+"位 / "+r.total+"人中）";
+msg.textContent=(r.improved?"ランキング更新！ ":"")+"自己ベスト "+Kt(r.best?r.best.score:l.score)+" ／ "+(r.pos||"-")+"位 / "+r.total+"人";
 _rkRender(list,r.top||[])}
 catch(e){if(_netCur===cur)msg.textContent="ランキングに送信できませんでした: "+e.message}}
-K("rNetName").onclick=function(){var n=prompt("ランキングに表示する名前（24文字まで・空欄で匿名）",_netName());if(n===null)return;n=n.trim().slice(0,24);ht("mr_rank_name",n);_netSum();if(_netCur&&_netLast){K("rNetMsg").textContent="名前を更新中…";_netSubmit()}};
+K("rNetName").onclick=function(){var n=prompt("ランキングの表示名（空欄で匿名）",_netName());if(n===null)return;n=n.trim().slice(0,24);ht("mr_rank_name",n);_netSum();if(_netCur&&_netLast){K("rNetMsg").textContent="名前を更新中…";_netSubmit()}};
 
 /* --- いいね・通報・削除 --- */
 async function _netLike(id,btn){try{var r=await _netReq("POST","/api/charts/"+encodeURIComponent(id)+"/like",{});btn.textContent="♥ "+r.likes;btn.classList.toggle("on",!!r.liked)}catch(e){Tt("いいねできませんでした: "+e.message)}}
 async function _netReport(id){if(!confirm("この譜面を通報しますか？（不適切な内容の場合のみ）"))return;try{await _netReq("POST","/api/charts/"+encodeURIComponent(id)+"/report",{});Tt("通報しました。ご協力ありがとうございます")}catch(e){Tt("通報できませんでした: "+e.message)}}
-async function _netDelete(id){var p=_netMine().find(function(x){return x.id===id});if(!p||!confirm("公開した譜面「"+p.name+"」を削除しますか？（ランキングも消えます）"))return;
+async function _netDelete(id){var p=_netMine().find(function(x){return x.id===id});if(!p||!confirm("公開した譜面「"+p.name+"」を削除しますか？ランキングも消えます。"))return;
 try{await _netReq("DELETE","/api/charts/"+encodeURIComponent(id),void 0,{"X-Token":p.token});_mrJS("mr_pub",_netMine().filter(function(x){return x.id!==id}));_netMineRender();if(!K("netScreen").hidden)_nsLoad(!0);K("netDetail").hidden=!0;_ndTok++;Tt("削除しました")}catch(e){Tt("削除できませんでした: "+e.message)}}
 function _netMineRender(){var l=_netMine(),box=K("netMine");K("netMineBox").hidden=!l.length;box.textContent="";
 l.slice().reverse().forEach(function(p){var row=document.createElement("div");row.className="netitem";var b=document.createElement("b"),s=document.createElement("small"),bt=document.createElement("div");bt.className="netrow";
@@ -1388,11 +1388,11 @@ K("npGo").disabled=!0;
 try{await _edSave(!0);var parsed=_edParsed||Sa(xt),data={v:1,notes:_netEnc(_edNotes.map(_edStripOne))};
 if(_edMeta&&_edMeta.scrollS)data.scroll={dt:_edMeta.scrollDt||.05,S:Array.from(_edMeta.scrollS,function(v){return Math.round(v*1e4)/1e4})};
 var body={title:title,name:name,author:author,url:url,lanes:_edL(),diff:K("diff").value,dur:Math.max(1,Math.round(_edDur*10)/10),sketch:_netSketch(parsed),data:data},ek=_edKey(),pubs=_netMine(),prev=pubs.filter(function(x){return x.key===ek}).pop(),res,updated=!1,reset=!1;
-if(prev&&confirm("前回公開した譜面を更新しますか？\n（譜面の中身を変えた場合、ランキングはリセットされます）\n［キャンセル］で新しい譜面として公開します")){var pr=await _netReq("PUT","/api/charts/"+prev.id,body,{"X-Token":prev.token});res={id:prev.id,token:prev.token};reset=!!pr.rankingReset;updated=!0}
+if(prev&&confirm("前回公開した譜面を更新しますか？\n譜面の中身を変えた場合、ランキングはリセットされます。\nキャンセルすると新しい譜面として公開します。")){var pr=await _netReq("PUT","/api/charts/"+prev.id,body,{"X-Token":prev.token});res={id:prev.id,token:prev.token};reset=!!pr.rankingReset;updated=!0}
 else res=await _netReq("POST","/api/charts",body);
 var item={id:res.id,token:res.token,key:ek,name:name,title:title,lanes:body.lanes,diff:body.diff,url:url,date:Date.now()};
 if(updated)pubs=pubs.map(function(x){return x.id===res.id?item:x});else pubs.push(item);_mrJS("mr_pub",pubs);ht("mr_np_name",name);ht("mr_np_author",author);
-K("npMsg").textContent=updated?"更新しました！"+(reset?"（譜面の内容が変わったため、ランキングはリセットされました）":""):"公開しました！「オンライン譜面」の一覧に表示されます。";
+K("npMsg").textContent=updated?"更新しました！"+(reset?"譜面の内容が変わったため、ランキングはリセットされました。":""):"公開しました！「オンライン譜面」の一覧に表示されます。";
 K("npForm").hidden=!0;K("npRes").hidden=!1;_netMineRender()}
 catch(e){Tt("公開できませんでした: "+e.message)}finally{K("npGo").disabled=!1}}
 K("npGo").onclick=_netDoPub;K("npCancel").onclick=function(){K("netPubDlg").hidden=!0};K("npClose").onclick=function(){K("netPubDlg").hidden=!0};
