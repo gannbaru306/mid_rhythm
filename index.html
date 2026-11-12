@@ -1437,7 +1437,7 @@ K("npMsg").textContent=updated?"更新しました。"+(reset?"譜面の内容�
 K("npForm").hidden=!0;K("npRes").hidden=!1;_netMineRender()}
 catch(e){Tt("公開できませんでした: "+e.message)}finally{K("npGo").disabled=!1}}
 K("npGo").onclick=_netDoPub;K("npCancel").onclick=function(){K("netPubDlg").hidden=!0};K("npClose").onclick=function(){K("netPubDlg").hidden=!0};
-
+              
 /* --- 画面の配線 --- */
 K("netOpen").onclick=_nsOpen;K("nsBack").onclick=_nsClose;K("nsRefresh").onclick=function(){_nsLoad(!0)};K("nsMore").onclick=function(){_nsLoad(!1)};
 K("nsSort").onchange=function(){_ns.sort=this.value;ht("mr_ns_sort",this.value);_nsLoad(!0)};
