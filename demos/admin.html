@@ -72,7 +72,7 @@ summary { cursor:pointer; font-size:13px; color:var(--mute); }
       <button id="save" class="main" type="button">demos.json を保存</button>
       <button id="copy" type="button">JSONをコピー</button>
     </div>
-    <p class="hint" style="margin-top:10px">保存した demos.json を、サイトの demos フォルダに上書きしてください。追加したMIDIも同じ demos フォルダに置きます。一覧から外した曲のMIDIは、不要なら手で削除してください。</p>
+    <p class="hint" style="margin-top:10px">濁点などの文字は、自動で合成形式（NFC）にそろえます。サイトは分解形式（NFD）のファイル名も探すので、MIDIのファイル名はどちらの形でも動きます。保存した demos.json を、サイトの demos フォルダに上書きしてください。追加したMIDIも同じ demos フォルダに置きます。一覧から外した曲のMIDIは、不要なら手で削除してください。</p>
     <details><summary>JSONの中身を見る</summary><pre id="json"></pre></details>
     <p class="hint">作業中の内容は、このブラウザに自動で保存されます。</p>
   </section>
@@ -82,12 +82,14 @@ summary { cursor:pointer; font-size:13px; color:var(--mute); }
 (function () {
 "use strict";
 var DIFFS = [["easy", "やさしい"], ["normal", "ふつう"], ["hard", "むずかしい"], ["lunatic", "狂気的ー"]];
-var FILE_RE = /^[\p{L}\p{N}_\-. ]{1,80}\.midi?$/iu;     // サイト本体（index.html）と同じ規則
+var FILE_RE = /^[\p{L}\p{N}\p{M}_\-. ]{1,80}\.midi?$/iu;     // サイト本体（index.html）と同じ規則
 var DRAFT = "mr_demo_admin_v1";
 var state = { hideBuiltin: false, songs: [] };
 var $ = function (id) { return document.getElementById(id); };
 
 /* ---------- 補助 ---------- */
+/* iOSなどで濁点が分解された文字(NFD)になることがあるため、保存する文字はすべて合成形式(NFC)にそろえる */
+function nfc(s) { return String(s == null ? "" : s).normalize("NFC"); }
 function jp(d) { for (var i = 0; i < DIFFS.length; i++) if (DIFFS[i][0] === d) return DIFFS[i][1]; return ""; }
 function autoSub(s) { return s.bpm ? jp(s.diff) + " / " + s.bpm + " BPM / " + (s.sig || 4) + "拍子" : ""; }
 var SUB_RE = /^(?:やさしい|ふつう|むずかしい|狂気的ー) \/ (\d+) BPM \/ (\d+)拍子$/;
@@ -108,7 +110,7 @@ function readBuf(f) {
 function decodeTitle(bytes) {
   var tries = ["utf-8", "shift_jis"];
   for (var i = 0; i < tries.length; i++) {
-    try { var t = new TextDecoder(tries[i], { fatal: true }).decode(bytes).trim(); if (t && !/[\u0000-\u001f\ufffd]/.test(t)) return t.slice(0, 60); } catch (e) {}
+    try { var t = new TextDecoder(tries[i], { fatal: true }).decode(bytes).trim(); if (t && !/[\u0000-\u001f\ufffd]/.test(t)) return nfc(t).slice(0, 60); } catch (e) {}
   }
   return null;
 }
@@ -149,13 +151,13 @@ function analyze(buf) {
 }
 
 /* ---------- 状態の保存と出力 ---------- */
-function plain(s) { var o = { name: s.name, file: s.file, diff: s.diff, sub: s.sub, desc: s.desc, sec: s.sec }; if (s.key) o.key = s.key; return o; }
+function plain(s) { var o = { name: nfc(s.name), file: nfc(s.file), diff: s.diff, sub: nfc(s.sub), desc: nfc(s.desc), sec: s.sec }; if (s.key) o.key = nfc(s.key); return o; }
 function toJson() { return JSON.stringify({ hideBuiltin: !!state.hideBuiltin, songs: state.songs.map(plain) }, null, 2) + "\n"; }
 function problems(s) {
   var p = [];
-  if (!s.name.trim()) p.push("曲名が空です");
-  if (!FILE_RE.test(s.file) || s.file.indexOf("..") >= 0) p.push("ファイル名に使えない文字があります。使えるのは文字・数字・- _ . と空白だけで、拡張子は .mid か .midi です");
-  var same = state.songs.filter(function (o) { return o.file === s.file; }).length;
+  if (!nfc(s.name).trim()) p.push("曲名が空です");
+  if (!FILE_RE.test(nfc(s.file)) || s.file.indexOf("..") >= 0) p.push("ファイル名に使えない文字があります。使えるのは文字・数字・- _ . と空白だけで、拡張子は .mid か .midi です");
+  var same = state.songs.filter(function (o) { return nfc(o.file) === nfc(s.file); }).length;
   if (same > 1) p.push("同じファイル名の曲があります");
   return p;
 }
@@ -172,8 +174,8 @@ function normalize(j) {
   var songs = [];
   list.slice(0, 200).forEach(function (x) {
     if (!x || typeof x !== "object" || (!x.name && !x.file)) return;
-    var s = { name: String(x.name || "").slice(0, 60), file: String(x.file || ""), diff: jp(x.diff) ? x.diff : "normal", sub: String(x.sub || "").slice(0, 40), desc: String(x.desc || "").slice(0, 80), sec: x.sec > 0 && x.sec < 7200 ? Math.round(x.sec) : 0 };
-    if (x.key) s.key = String(x.key);
+    var s = { name: nfc(x.name).slice(0, 60), file: nfc(x.file), diff: jp(x.diff) ? x.diff : "normal", sub: nfc(x.sub).slice(0, 40), desc: nfc(x.desc).slice(0, 80), sec: x.sec > 0 && x.sec < 7200 ? Math.round(x.sec) : 0 };
+    if (x.key) s.key = nfc(x.key);
     var m = SUB_RE.exec(s.sub);
     s.bpm = x.bpm > 0 ? x.bpm : (m ? +m[1] : 0); s.sig = x.sig > 0 ? x.sig : (m ? +m[2] : 4);
     s.subAuto = typeof x.subAuto === "boolean" ? x.subAuto : !!m;
@@ -193,17 +195,17 @@ async function loadSite() {
 async function addFiles(files) {
   var added = 0, updated = 0, errs = [];
   for (var i = 0; i < files.length; i++) {
-    var f = files[i];
-    if (!/\.midi?$/i.test(f.name)) { errs.push(f.name + ": MIDIファイルではありません"); continue; }
+    var f = files[i], fname = nfc(f.name);
+    if (!/\.midi?$/i.test(fname)) { errs.push(fname + ": MIDIファイルではありません"); continue; }
     try {
       var buf = await readBuf(f), a = analyze(buf), cur = null;
-      state.songs.forEach(function (s) { if (s.file === f.name) cur = s; });
+      state.songs.forEach(function (s) { if (nfc(s.file) === fname) cur = s; });
       if (cur) { cur.sec = a.sec; cur.bpm = a.bpm; cur.sig = a.sig; cur.buf = buf; if (cur.subAuto) cur.sub = autoSub(cur); updated++; }
       else {
-        var s = { name: a.title || stem(f.name).slice(0, 60), file: f.name, diff: "normal", desc: "", sec: a.sec, bpm: a.bpm, sig: a.sig, subAuto: true, buf: buf };
+        var s = { name: a.title || stem(fname).slice(0, 60), file: fname, diff: "normal", desc: "", sec: a.sec, bpm: a.bpm, sig: a.sig, subAuto: true, buf: buf };
         s.sub = autoSub(s); state.songs.push(s); added++;
       }
-    } catch (e) { errs.push(f.name + ": " + e.message); }
+    } catch (e) { errs.push(fname + ": " + e.message); }
   }
   render(); persist();
   var parts = []; if (added) parts.push(added + "曲を追加"); if (updated) parts.push(updated + "曲を更新");
@@ -225,13 +227,18 @@ function render() {
       warn.textContent = ""; problems(s).forEach(function (m) { warn.append(h("p", { className: "warn", text: m })); });
       meta.textContent = (s.sec ? "約" + s.sec + "秒" : "長さ不明") + " ／ " + (s.buf ? "MIDIを読み込み済み" : "MIDIはこの画面にありません（一覧のみ）");
     }
+    function fix(el, set) { return function () { var v = nfc(el.value); if (v !== el.value) el.value = v; set(v); check(); persist(); }; }
     var nameIn = h("input", { type: "text", value: s.name, maxLength: 60, oninput: function () { s.name = nameIn.value; check(); persist(); } });
+    nameIn.onchange = fix(nameIn, function (v) { s.name = v; });
     var diffIn = h("select", { onchange: function () { s.diff = diffIn.value; if (s.subAuto) { s.sub = autoSub(s); subIn.value = s.sub; } persist(); } });
     DIFFS.forEach(function (d) { var o = h("option", { value: d[0], text: d[1] }); if (d[0] === s.diff) o.selected = true; diffIn.append(o); });
     var descIn = h("input", { type: "text", value: s.desc, maxLength: 80, placeholder: "一言（任意）", oninput: function () { s.desc = descIn.value; persist(); } });
+    descIn.onchange = fix(descIn, function (v) { s.desc = v; });
     subIn = h("input", { type: "text", value: s.sub, maxLength: 40, oninput: function () { s.sub = subIn.value; s.subAuto = false; persist(); } });
+    subIn.onchange = fix(subIn, function (v) { s.sub = v; });
     fileIn = h("input", { type: "text", value: s.file, maxLength: 80, oninput: function () { s.file = fileIn.value; check(); persist(); } });
-    var save = h("button", { type: "button", text: "MIDIを保存", disabled: !s.buf, title: "いまのファイル名でMIDIを保存します", onclick: function () { download(s.file, new Blob([s.buf], { type: "audio/midi" })); } });
+    fileIn.onchange = fix(fileIn, function (v) { s.file = v; });
+    var save = h("button", { type: "button", text: "MIDIを保存", disabled: !s.buf, title: "いまのファイル名でMIDIを保存します", onclick: function () { download(nfc(s.file), new Blob([s.buf], { type: "audio/midi" })); } });
     var del = h("button", { type: "button", className: "danger", text: "削除", onclick: function () {
       if (!confirm("「" + (s.name || s.file) + "」を一覧から外しますか。\nMIDIファイルは demos フォルダに残るので、不要なら手で削除してください。")) return;
       state.songs.splice(i, 1); render(); persist(); say("「" + (s.name || s.file) + "」を一覧から外しました", "ok"); } });
