@@ -845,7 +845,7 @@ try{await _mrIDB("readwrite",function(st){return st.put(rec)},"charts");ok=!0}ca
 if(ok){_edMem={key:key,notes:notes,meta:_edMeta,saved:!0};_edDirty=!1;if(!quiet)Tt("譜面を保存しました");_edTitle()}else if(!quiet)Tt("譜面を保存できませんでした");return ok}
 async function _edChartForPlay(diff){if(_tutActive){_edUsed=!1;return _tutBuild()}_edUsed=!1;if(_netCur){return _edBuildChart(_netCur.notes,_netCur.meta)}var key=_edKey();if(K("edUse").checked||_edReturn){var rec=(_edMem&&_edMem.key===key&&(_edMem.saved||_edReturn))?_edMem:await _edLoadRec(key);if(rec){_edUsed=!0;return _edBuildChart(rec.notes,rec.meta)}}return wa(Sa(xt),+K("lanes").value,diff)}
 async function _edRefreshMenu(){var row=K("edUseRow");if(!row)return;if(!xt){row.hidden=!0;return}var rec=null;try{rec=await _edLoadRec(_edKey())}catch(e){}row.hidden=!rec}
-function _edExport(){var data={version:2,app:"MIDI Rhythm",songHash:_edSongId(),songName:_edSongName,diff:K("diff").value,lanes:_edL(),notes:_edNotes.map(_edStripOne)},a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:"application/octet-stream"}));a.download=(_edSongName||"chart")+"_"+data.diff+"_"+data.lanes+"lane.json";a.rel="noopener";a.style.display="none";document.body.append(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},6e4)}
+function _edExport(){var data={version:2,app:"MIDI Rhythm",songHash:_edSongId(),songName:_edSongName,diff:K("diff").value,lanes:_edL(),notes:_edNotes.map(_edStripOne)},a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:"application/json"}));a.download=(_edSongName||"chart")+"_"+data.diff+"_"+data.lanes+"lane.json";a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},5e3)}
 function _edImportFile(f){var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d||!Array.isArray(d.notes))throw new Error("譜面データが見つかりません");if(d.lanes&&d.lanes!==_edL()){Tt("レーン数が違います（ファイル: "+d.lanes+" / 現在: "+_edL()+"）");return}if(d.songHash&&d.songHash!==_edSongId()&&!confirm("別の曲の譜面です。読み込みますか？"))return;_edUndoPush();_edNotes=d.notes.map(_edHydrateOne);_edNotes.forEach(function(n){if(n.kind==="glide"&&n.pts&&n.pts.length>1)_edRebuildGlide(n)});_edSel=[];_edDur=Math.max(_edDur,Math.max.apply(null,_edNotes.map(function(n){return n.end}))+1);_edAfterEdit();Tt("譜面を読み込みました")}catch(e){Tt("読み込めませんでした: "+e.message)}};r.readAsText(f)}
 async function _edResetChart(){if(!confirm("自動生成の譜面に戻しますか？編集内容と保存済みの編集譜面は消えます。"))return;var key=_edKey();try{await _mrIDB("readwrite",function(st){return st.delete(key)},"charts")}catch(e){}try{localStorage.removeItem("mr_ed_"+key)}catch(e){}_edMem=null;_edDirty=!1;await _edOpen(!0)}
 
@@ -875,7 +875,7 @@ function _edAfterGame(){if(_prActive){_prEnd();K("menu").hidden=!0;K("result").h
 async function _edSeekAudio(T){try{if(typeof zA==="undefined"||!zA)return!1;zA.currentTime=T;for(var i=0;i<12;i++){await new Promise(function(r){setTimeout(r,50)});try{if(Math.abs(iA.time()-T)<.08)return!0}catch(e){}}try{return Math.abs(iA.time()-T)<.5}catch(e){return!1}}catch(e){return!1}}
 function _edFilterFrom(ch,T,T1){T1=T1||1e9;var out=[],sc=ch.scroll||null;for(var n of ch){if(n.t>=T1)break;if(n.kind==="glide"){if(n.t>=T)out.push(n);continue}if(n.t<T){if(n.long&&n.end>=T){var c=Object.assign({},n);c.t=T;c.sc=_edBA(T,sc);if(c.end-c.t<.3){c.long=!1;c.end=c.t;c.flickEnd=!1}out.push(c)}continue}out.push(n)}
 out.beats=ch.beats||[];out.minM=1;out.scroll=ch.scroll||null;out.cues=[];out.bpmAt=ch.bpmAt;out.info=ch.info||"";out.diff=ch.diff;out.stats=ch.stats;return out}
-async function _edStartAt(){_edPartial=!1;var pr=_prActive&&_prSec,T=pr?pr.t0:(_edReturn&&_edReturn.T||0);if(!pr&&!(T>0))return;var seek=Math.max(0,T-1.5);if(await _edSeekAudio(seek)){var f=_edFilterFrom(cA,T,pr?pr.t1:1e9);if(f.length<1)throw new Error("この区間にノーツがありません");cA=f;_edPartial=!0;_prApplyRate()}else Tt("途中からの再生ができなかったため、最初から再生します")}
+async function _edStartAt(){_edPartial=!1;var pr=_prActive&&_prSec,T=pr?pr.t0:(_edReturn&&_edReturn.T||0);if(!pr&&!(T>0)){_prApplyRate();return}var seek=Math.max(0,T-1.5);if(await _edSeekAudio(seek)){var f=_edFilterFrom(cA,T,pr?pr.t1:1e9);if(f.length<1)throw new Error("この区間にノーツがありません");cA=f;_edPartial=!0;_prApplyRate()}else{Tt("途中からの再生ができなかったため、最初から再生します");_prApplyRate()}}
 
 /* --- 入力 --- */
 function _edXY(e){var r=Ve.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
@@ -1229,14 +1229,14 @@ var _prActive=!1,_prSec=null,_prLaps=0,_prBest=0;
 var _mrRankCol={SSS:"#f2d98a",SS:"#e9c46a",S:"#e0a24f",A:"#c9d6a3",B:"#8fb3dc",C:"#a58fc8",D:"#a39b8a"};
 function _mrRank(base){return base>=99e4?"SSS":base>=975e3?"SS":base>=95e4?"S":base>=9e5?"A":base>=8e5?"B":base>=7e5?"C":"D"}
 function _prRateNow(){return _prActive&&_prSec?_prSec.rate:1}
-function _prApplyRate(){if(_prActive&&_prSec){try{zA.playbackRate=_prSec.rate}catch(e){}}}
+function _prApplyRate(){var r=_prRateNow();try{if(zA&&zA.playbackRate!==r)zA.playbackRate=r}catch(e){}}
 function _prStart(t0,t1,rate){if(!Nt||!iA){Tt("音源を読み込み中です。しばらく待ってください");return}
 _prActive=!0;_prSec={t0:t0,t1:t1,rate:rate};_prLaps=0;_prBest=0;_edReturn=null;K("quit").textContent="練習をやめる";K("result").hidden=!0;Xo()}
 function _prLap(){var A=$A.PERFECT+$A.GREAT+$A.GOOD+$A.BAD+$A.MISS,acc=A?Math.round(($A.PERFECT+.7*$A.GREAT+.4*$A.GOOD)/A*100):0;_prLaps++;_prBest=Math.max(_prBest,acc);
 $e=!1;cancelAnimationFrame(Yt);try{iA.stop()}catch(e){}ae.clear();Se.clear();_e.clear();De.clear();OA.length=0;
 Tt("ラップ"+_prLaps+"  精度 "+acc+"%（最高 "+_prBest+"%）  PERFECT "+$A.PERFECT+" / GREAT "+$A.GREAT+" / GOOD "+$A.GOOD+" / MISS "+($A.BAD+$A.MISS));
 setTimeout(function(){if(_prActive)Xo()},700);return!0}
-function _prEnd(){_prActive=!1;_prSec=null;K("quit").textContent="シュウリョウ";Tt("練習を終了しました")}
+function _prEnd(){_prActive=!1;_prSec=null;_prApplyRate();K("quit").textContent="シュウリョウ";Tt("練習を終了しました")}
 function _prBar(t,dir){var b=(cA&&cA.beats)||[],r=null;for(var i=0;i<b.length;i++){if(!b[i].bar)continue;if(dir<0){if(b[i].t<=t+.001)r=b[i].t;else break}else if(b[i].t>=t-.001){return b[i].t}}return dir<0?(r===null?Math.max(0,t-.5):r):t+.5}
 function _prBuild(R,quit){var box=K("rPracBox"),list=K("rPracList");box.hidden=!0;list.textContent="";if(quit||pe||_tutActive||_prActive||!cA||!cA.length)return;
 var W={PERFECT:1,GREAT:.7,GOOD:.4,BAD:0,MISS:0},rec=R.filter(function(r){return r.j in W}),n=rec.length;if(n<10)return;
