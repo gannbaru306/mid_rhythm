@@ -840,10 +840,10 @@ function _edSetTool(t){if(_edGlide)_edGlideCancel();_edTool=t;_edHover=null;docu
 
 /* --- 保存 / 読込 --- */
 async function _edLoadRec(key){var rec=null;try{rec=await _mrIDB("readonly",function(st){return st.get(key)},"charts")}catch(e){rec=null}if(!rec){try{var raw=localStorage.getItem("mr_ed_"+key);if(raw)rec=JSON.parse(raw)}catch(e){}}return rec&&Array.isArray(rec.notes)?rec:null}
-async function _edSave(quiet){if(_edPreview||(!_edOpenFlag&&!_edReturn))return!1;clearTimeout(_edSaveT);_edValidate();var key=_edKey(),notes=_edNotes.map(_edStripOne),rec={id:key,songId:_edSongId(),key:key,diff:K("diff").value,lanes:_edL(),notes:notes,meta:_edMeta,updated:Date.now()},ok=!1;
+async function _edSave(quiet){if(_edPreview||(!_edOpenFlag&&!_edReturn))return!1;clearTimeout(_edSaveT);_edValidate();var key=_edKey(),notes=_edNotes.map(_edStripOne),rec={id:key,songId:_edSongId(),key:key,diff:K("diff").value,lanes:_edL(),notes:notes,meta:_edMeta,updated:Date.now()},ok=!1;if(quiet&&!_edDirty){_edMem={key:key,notes:notes,meta:_edMeta,saved:!1};return!0}
 try{await _mrIDB("readwrite",function(st){return st.put(rec)},"charts");ok=!0}catch(e){try{localStorage.setItem("mr_ed_"+key,JSON.stringify(rec));ok=!0}catch(e2){}}
-if(ok){_edMem={key:key,notes:notes,meta:_edMeta};_edDirty=!1;if(!quiet)Tt("譜面を保存しました");_edTitle()}else if(!quiet)Tt("譜面を保存できませんでした");return ok}
-async function _edChartForPlay(diff){if(_tutActive){_edUsed=!1;return _tutBuild()}_edUsed=!1;if(_netCur){return _edBuildChart(_netCur.notes,_netCur.meta)}var key=_edKey();if(K("edUse").checked||_edReturn){var rec=(_edMem&&_edMem.key===key)?_edMem:await _edLoadRec(key);if(rec){_edUsed=!0;return _edBuildChart(rec.notes,rec.meta)}}return wa(Sa(xt),+K("lanes").value,diff)}
+if(ok){_edMem={key:key,notes:notes,meta:_edMeta,saved:!0};_edDirty=!1;if(!quiet)Tt("譜面を保存しました");_edTitle()}else if(!quiet)Tt("譜面を保存できませんでした");return ok}
+async function _edChartForPlay(diff){if(_tutActive){_edUsed=!1;return _tutBuild()}_edUsed=!1;if(_netCur){return _edBuildChart(_netCur.notes,_netCur.meta)}var key=_edKey();if(K("edUse").checked||_edReturn){var rec=(_edMem&&_edMem.key===key&&(_edMem.saved||_edReturn))?_edMem:await _edLoadRec(key);if(rec){_edUsed=!0;return _edBuildChart(rec.notes,rec.meta)}}return wa(Sa(xt),+K("lanes").value,diff)}
 async function _edRefreshMenu(){var row=K("edUseRow");if(!row)return;if(!xt){row.hidden=!0;return}var rec=null;try{rec=await _edLoadRec(_edKey())}catch(e){}row.hidden=!rec}
 function _edExport(){var data={version:2,app:"MIDI Rhythm",songHash:_edSongId(),songName:_edSongName,diff:K("diff").value,lanes:_edL(),notes:_edNotes.map(_edStripOne)},a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:"application/json"}));a.download=(_edSongName||"chart")+"_"+data.diff+"_"+data.lanes+"lane.json";a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},5e3)}
 function _edImportFile(f){var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d||!Array.isArray(d.notes))throw new Error("譜面データが見つかりません");if(d.lanes&&d.lanes!==_edL()){Tt("レーン数が違います（ファイル: "+d.lanes+" / 現在: "+_edL()+"）");return}if(d.songHash&&d.songHash!==_edSongId()&&!confirm("別の曲の譜面です。読み込みますか？"))return;_edUndoPush();_edNotes=d.notes.map(_edHydrateOne);_edNotes.forEach(function(n){if(n.kind==="glide"&&n.pts&&n.pts.length>1)_edRebuildGlide(n)});_edSel=[];_edDur=Math.max(_edDur,Math.max.apply(null,_edNotes.map(function(n){return n.end}))+1);_edAfterEdit();Tt("譜面を読み込みました")}catch(e){Tt("読み込めませんでした: "+e.message)}};r.readAsText(f)}
@@ -1107,8 +1107,31 @@ function _b64buf(b){var s=atob(b),u=new Uint8Array(s.length);for(var i=0;i<s.len
 var _tutActive=!1,_tutSaved=null,_tutPage=0,_tutRaf=0;
 
 /* --- デモ曲 --- */
-function _demoLoad(d){xt=_b64buf(d.b64);_mrCur={id:"demo-"+d.key,name:d.name};K("fname").textContent=d.name+"（デモ曲）";K("diff").value=d.diff;K("diff").dispatchEvent(new Event("change"));Ai();_mrHSInfo();Tt("「"+d.name+"」を読み込みました（おすすめ: "+d.diff.toUpperCase()+"）")}
-function _demoRender(){var box=K("demoList");box.textContent="";_DEMOS.forEach(function(d){var b=document.createElement("button");b.className="demo";b.type="button";var t=document.createElement("b"),s=document.createElement("span"),p=document.createElement("small");t.textContent=d.name;s.textContent=d.sub+" ／ 約"+d.sec+"秒";p.textContent=d.desc;b.append(t,s,p);b.onclick=function(){_demoLoad(d)};box.append(b)})}
+var _DEMO_DIR="demos/",_DEMO_FILE=/^[\p{L}\p{N}_\-. ]{1,80}\.midi?$/iu;
+async function _demoFetch(file){
+if(!_DEMO_FILE.test(file)||file.indexOf("..")>=0)throw new Error("ファイル名が不正です");
+var r=await fetch(_DEMO_DIR+encodeURIComponent(file),{cache:"no-cache"});
+if(!r.ok)throw new Error("取得できません "+r.status);
+var b=await r.arrayBuffer();
+if(!b.byteLength||b.byteLength>3e6||new TextDecoder("latin1").decode(new Uint8Array(b,0,4))!=="MThd")throw new Error("MIDIファイルではありません");
+return b}
+async function _demoLoad(d){var buf;
+try{buf=d.b64?_b64buf(d.b64):await _demoFetch(d.file)}catch(e){Tt("デモ曲を読み込めませんでした: "+e.message);return}
+xt=buf;_mrCur={id:"demo-"+d.key,name:d.name};K("fname").textContent=d.name+"（デモ曲）";K("diff").value=d.diff;K("diff").dispatchEvent(new Event("change"));Ai();_mrHSInfo();Tt("「"+d.name+"」を読み込みました（おすすめ: "+d.diff.toUpperCase()+"）")}
+function _demoRender(){var box=K("demoList");box.textContent="";_DEMOS.forEach(function(d){var b=document.createElement("button");b.className="demo";b.type="button";var t=document.createElement("b"),s=document.createElement("span"),p=document.createElement("small");t.textContent=d.name;s.textContent=[d.sub,d.sec?"約"+d.sec+"秒":""].filter(Boolean).join(" ／ ");p.textContent=d.desc||"";b.append(t,s);if(d.desc)b.append(p);b.onclick=function(){_demoLoad(d)};box.append(b)})}
+/* demos/demos.json を読み、全員共通のデモ曲として追加する（失敗しても内蔵デモ曲はそのまま） */
+async function _demoRemote(){
+try{var r=await fetch(_DEMO_DIR+"demos.json",{cache:"no-cache"});if(!r.ok)return;var j=await r.json();
+var list=Array.isArray(j)?j:(j&&Array.isArray(j.songs)?j.songs:[]),add=[];
+list.slice(0,50).forEach(function(x){if(!x||typeof x!=="object")return;
+var file=String(x.file||""),name=String(x.name||"").trim().slice(0,60);
+if(!name||!_DEMO_FILE.test(file)||file.indexOf("..")>=0)return;
+add.push({key:String(x.key||file.replace(/\.midi?$/i,"")).replace(/[^\p{L}\p{N}_\-]/gu,"_").slice(0,40),name:name,sub:String(x.sub||"").slice(0,40),
+diff:["easy","normal","hard","lunatic"].indexOf(x.diff)>=0?x.diff:"normal",desc:String(x.desc||"").slice(0,80),sec:x.sec>0&&x.sec<7200?Math.round(x.sec):0,file:file})});
+if(!add.length)return;
+if(j&&!Array.isArray(j)&&j.hideBuiltin)_DEMOS.length=0;
+add.forEach(function(d){for(var i=_DEMOS.length-1;i>=0;i--)if(_DEMOS[i].key===d.key)_DEMOS.splice(i,1);_DEMOS.push(d)});
+_demoRender()}catch(e){}}
 
 /* --- チュートリアル: 練習譜面（手作り） --- */
 function _tutBuild(){var B=.6,N=[],cues=[];
@@ -1195,7 +1218,7 @@ K("tutSkip").onclick=function(){_tutClose()};
 K("tutPrev").onclick=function(){if(_tutPage>0){_tutPage--;_tutRender()}};
 K("tutNext").onclick=function(){if(_tutPage<_tutPages().length-1){_tutPage++;_tutRender()}};
 addEventListener("keydown",function(e){if(K("tut").hidden)return;if(e.code==="Escape"){e.preventDefault();_tutClose()}else if(e.code==="ArrowRight"){e.preventDefault();K("tutNext").click()}else if(e.code==="ArrowLeft"){e.preventDefault();K("tutPrev").click()}});
-_demoRender();
+_demoRender();_demoRemote();
 K("welcome").hidden=_mrFlag("mr_tut",!1);
 
 /* ===================== ランク / 区間練習 ===================== */
