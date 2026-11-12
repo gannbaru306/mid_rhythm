@@ -845,7 +845,7 @@ try{await _mrIDB("readwrite",function(st){return st.put(rec)},"charts");ok=!0}ca
 if(ok){_edMem={key:key,notes:notes,meta:_edMeta,saved:!0};_edDirty=!1;if(!quiet)Tt("譜面を保存しました");_edTitle()}else if(!quiet)Tt("譜面を保存できませんでした");return ok}
 async function _edChartForPlay(diff){if(_tutActive){_edUsed=!1;return _tutBuild()}_edUsed=!1;if(_netCur){return _edBuildChart(_netCur.notes,_netCur.meta)}var key=_edKey();if(K("edUse").checked||_edReturn){var rec=(_edMem&&_edMem.key===key&&(_edMem.saved||_edReturn))?_edMem:await _edLoadRec(key);if(rec){_edUsed=!0;return _edBuildChart(rec.notes,rec.meta)}}return wa(Sa(xt),+K("lanes").value,diff)}
 async function _edRefreshMenu(){var row=K("edUseRow");if(!row)return;if(!xt){row.hidden=!0;return}var rec=null;try{rec=await _edLoadRec(_edKey())}catch(e){}row.hidden=!rec}
-function _edExport(){var data={version:2,app:"MIDI Rhythm",songHash:_edSongId(),songName:_edSongName,diff:K("diff").value,lanes:_edL(),notes:_edNotes.map(_edStripOne)},a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:"application/json"}));a.download=(_edSongName||"chart")+"_"+data.diff+"_"+data.lanes+"lane.json";a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},5e3)}
+function _edExport(){var data={version:2,app:"MIDI Rhythm",songHash:_edSongId(),songName:_edSongName,diff:K("diff").value,lanes:_edL(),notes:_edNotes.map(_edStripOne)},a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:"application/octet-stream"}));a.download=(_edSongName||"chart")+"_"+data.diff+"_"+data.lanes+"lane.json";a.rel="noopener";a.style.display="none";document.body.append(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},6e4)}
 function _edImportFile(f){var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d||!Array.isArray(d.notes))throw new Error("譜面データが見つかりません");if(d.lanes&&d.lanes!==_edL()){Tt("レーン数が違います（ファイル: "+d.lanes+" / 現在: "+_edL()+"）");return}if(d.songHash&&d.songHash!==_edSongId()&&!confirm("別の曲の譜面です。読み込みますか？"))return;_edUndoPush();_edNotes=d.notes.map(_edHydrateOne);_edNotes.forEach(function(n){if(n.kind==="glide"&&n.pts&&n.pts.length>1)_edRebuildGlide(n)});_edSel=[];_edDur=Math.max(_edDur,Math.max.apply(null,_edNotes.map(function(n){return n.end}))+1);_edAfterEdit();Tt("譜面を読み込みました")}catch(e){Tt("読み込めませんでした: "+e.message)}};r.readAsText(f)}
 async function _edResetChart(){if(!confirm("自動生成の譜面に戻しますか？編集内容と保存済みの編集譜面は消えます。"))return;var key=_edKey();try{await _mrIDB("readwrite",function(st){return st.delete(key)},"charts")}catch(e){}try{localStorage.removeItem("mr_ed_"+key)}catch(e){}_edMem=null;_edDirty=!1;await _edOpen(!0)}
 
@@ -1437,7 +1437,7 @@ K("npMsg").textContent=updated?"更新しました。"+(reset?"譜面の内容�
 K("npForm").hidden=!0;K("npRes").hidden=!1;_netMineRender()}
 catch(e){Tt("公開できませんでした: "+e.message)}finally{K("npGo").disabled=!1}}
 K("npGo").onclick=_netDoPub;K("npCancel").onclick=function(){K("netPubDlg").hidden=!0};K("npClose").onclick=function(){K("netPubDlg").hidden=!0};
-              
+
 /* --- 画面の配線 --- */
 K("netOpen").onclick=_nsOpen;K("nsBack").onclick=_nsClose;K("nsRefresh").onclick=function(){_nsLoad(!0)};K("nsMore").onclick=function(){_nsLoad(!1)};
 K("nsSort").onchange=function(){_ns.sort=this.value;ht("mr_ns_sort",this.value);_nsLoad(!0)};
