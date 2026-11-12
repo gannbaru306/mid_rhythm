@@ -1,0 +1,13 @@
+{
+  "hideBuiltin": false,
+  "songs": [
+    {
+      "name": "千本桜(test)",
+      "file": "千本桜.mid",
+      "diff": "hard",
+      "sub": "むずかしい / 155 BPM / 4拍子",
+      "desc": "testです",
+      "sec": 238
+    }
+  ]
+}
