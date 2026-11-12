@@ -70,8 +70,10 @@ summary { cursor:pointer; font-size:13px; color:var(--mute); }
     <p id="problem" class="warn" hidden></p>
     <div class="btns">
       <button id="save" class="main" type="button">demos.json を保存</button>
+      <button id="share" type="button" hidden>共有して保存</button>
       <button id="copy" type="button">JSONをコピー</button>
     </div>
+    <p class="hint" style="margin-top:8px">「demos.json を保存」で保存できず、JSONの画面が開いたときは、「共有して保存」か「JSONをコピー」を使ってください。</p>
     <p class="hint" style="margin-top:10px">濁点などの文字は、自動で合成形式（NFC）にそろえます。サイトは分解形式（NFD）のファイル名も探すので、MIDIのファイル名はどちらの形でも動きます。保存した demos.json を、サイトの demos フォルダに上書きしてください。追加したMIDIも同じ demos フォルダに置きます。一覧から外した曲のMIDIは、不要なら手で削除してください。</p>
     <details><summary>JSONの中身を見る</summary><pre id="json"></pre></details>
     <p class="hint">作業中の内容は、このブラウザに自動で保存されます。</p>
@@ -213,9 +215,23 @@ async function addFiles(files) {
 }
 
 /* ---------- 画面 ---------- */
+/* iOSのSafariなどは、application/json や audio/midi のままだと download 指定を無視してその場で開くことがある。
+   汎用のバイナリ型にして、必ずダウンロードとして扱わせる */
 function download(name, blob) {
-  var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove();
-  setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+  var url = URL.createObjectURL(new Blob([blob], { type: "application/octet-stream" }));
+  var a = document.createElement("a"); a.href = url; a.download = name; a.rel = "noopener"; a.style.display = "none";
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+}
+/* 共有シート経由で「ファイルに保存」できる環境(iPhoneなど)向け。ダウンロードが効かないときの代わり */
+function shareTypes(name) { return /\.json$/i.test(name) ? ["application/json", "text/plain"] : ["audio/midi", "application/octet-stream"]; }
+function shareFileFor(name, text) {
+  if (!window.File || !navigator.canShare || !navigator.share) return null;
+  var types = shareTypes(name);
+  for (var i = 0; i < types.length; i++) {
+    try { var f = new File([text], name, { type: types[i] }); if (navigator.canShare({ files: [f] })) return f; } catch (e) {}
+  }
+  return null;
 }
 function move(i, d) { var j = i + d; if (j < 0 || j >= state.songs.length) return; var t = state.songs[i]; state.songs[i] = state.songs[j]; state.songs[j] = t; render(); persist(); }
 function render() {
@@ -265,6 +281,13 @@ $("jsonIn").onchange = async function () {
 $("hideBuiltin").onchange = function () { state.hideBuiltin = this.checked; persist(); };
 $("reload").onclick = function () { if (state.songs.length && !confirm("編集中の内容を破棄して、サイトの demos.json に戻しますか。")) return; loadSite(); };
 $("save").onclick = function () { download("demos.json", new Blob([toJson()], { type: "application/json" })); say("demos.json を保存しました。サイトの demos フォルダに置いてください", "ok"); };
+if (shareFileFor("demos.json", "{}")) $("share").hidden = false;
+$("share").onclick = async function () {
+  var f = shareFileFor("demos.json", toJson());
+  if (!f) { say("この環境では共有で保存できません。「JSONをコピー」を使ってください", "ng"); return; }
+  try { await navigator.share({ files: [f], title: "demos.json" }); say("共有しました。「ファイルに保存」を選ぶと、demos.json として保存できます", "ok"); }
+  catch (e) { if (e && e.name === "AbortError") return; say("共有できませんでした: " + (e && e.message ? e.message : e), "ng"); }
+};
 $("copy").onclick = async function () {
   try { await navigator.clipboard.writeText(toJson()); say("JSONをコピーしました", "ok"); }
   catch (e) { var d = document.querySelector("details"); d.open = true; var r = document.createRange(); r.selectNodeContents($("json")); var s = getSelection(); s.removeAllRanges(); s.addRange(r); say("コピーできませんでした。表示したJSONを選択してコピーしてください", "ng"); }
